@@ -1,0 +1,2 @@
+MONGODB_NAME = 'gimmejsondb'
+MONGODB_COLLECTION_RESOURCE = 'resources'

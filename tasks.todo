@@ -1,2 +1,9 @@
 Tasks:
-  ☐ 
+  ☐ database setup and configuration
+  ☐ add resource model
+    ☐ create
+    ☐ read
+    ☐ update
+    ☐ delete
+
+  ☐ register all resources on application start
