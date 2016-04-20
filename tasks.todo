@@ -1,9 +1,10 @@
 Tasks:
-  ☐ database setup and configuration
+  ✔ database setup and configuration @done(2016-04-19 19:45) @project(Tasks)
   ☐ add resource model
     ☐ create
     ☐ read
     ☐ update
     ☐ delete
 
+  ☐ unique index db.resources.createIndex({'endpoint': 1, 'methods': 1})
   ☐ register all resources on application start
