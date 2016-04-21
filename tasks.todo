@@ -1,10 +1,14 @@
 Tasks:
   ✔ database setup and configuration @done(2016-04-19 19:45) @project(Tasks)
-  ☐ add resource model
-    ☐ create
-    ☐ read
-    ☐ update
-    ☐ delete
+  ✔ add resource model @done(2016-04-20 18:55) @project(Tasks)
+    ✔ create @done(2016-04-20 18:55) @project(Tasks)
+    ✔ read @done(2016-04-20 18:55) @project(Tasks)
+    ✔ update @done(2016-04-20 18:55) @project(Tasks)
+    ✔ delete @done(2016-04-20 18:55) @project(Tasks)
+  ✔ register all resources on application start @done(2016-04-21 09:09) @project(Tasks)
 
-  ☐ unique index db.resources.createIndex({'endpoint': 1, 'methods': 1})
-  ☐ register all resources on application start
+  ☐ query params support
+  ☐ reload the server via api call? (so that the new changes to /resource are applied)
+  Validation:
+    ☐ do not allow duplicate methods for resource (i.e methods: ['GET', 'GET']) - enforce unique index? (db.resources.createIndex({'endpoint': 1, 'methods': 1}))
+  ☐ handle database exceptions

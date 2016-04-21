@@ -14,6 +14,9 @@ class ModelResult(object):
             return json_util.dumps(self.result.inserted_id)
         return json_util.dumps(self.result)
 
+    def original(self):
+        return self.result
+
 class ResourceModel(object):
     def __init__(self):
         self.collection = database[settings.MONGODB_COLLECTION_RESOURCE]
