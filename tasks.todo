@@ -9,6 +9,9 @@ Tasks:
 
   ☐ query params support
   ☐ reload the server via api call? (so that the new changes to /resource are applied)
+  ☐ mirror request? i.e if 'response' is empty string should the request body?
   Validation:
     ☐ do not allow duplicate methods for resource (i.e methods: ['GET', 'GET']) - enforce unique index? (db.resources.createIndex({'endpoint': 1, 'methods': 1}))
   ☐ handle database exceptions
+  ☐ pep8
+  ☐ tests

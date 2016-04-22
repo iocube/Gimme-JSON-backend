@@ -24,8 +24,8 @@ class ResourceModel(object):
     def get_all_resources(self):
         return ModelResult(self.collection.find())
 
-    def create(self, endpoint, methods, response):
-        return ModelResult(self.collection.insert_one({'endpoint': endpoint, 'methods': methods, 'response': response}))
+    def create(self, endpoint, methods, response, query_params):
+        return ModelResult(self.collection.insert_one({'endpoint': endpoint, 'methods': methods, 'response': response, 'queryParams': query_params}))
 
     def delete(self, resource_id):
         self.collection.remove({'_id': ObjectId(resource_id)})

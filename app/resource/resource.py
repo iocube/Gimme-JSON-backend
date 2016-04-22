@@ -25,7 +25,7 @@ def get_resources_list():
 def create_new_resource():
     payload = request.json
     payload['methods'].sort()
-    new_resource = resource_model.create(payload['endpoint'], payload['methods'], payload['response'])
+    new_resource = resource_model.create(payload['endpoint'], payload['methods'], payload['response'], payload['queryParams'])
     return Response(
         response=new_resource.to_json(),
         status=HTTP_OK,
@@ -43,7 +43,7 @@ def delete_resource(resource_id):
 
 @blueprint.route('/resource/<string:resource_id>', methods=['PATCH'])
 def patch_resource(resource_id):
-    properties_to_update = select_from(request.json, ['endpoint', 'methods', 'response'])
+    properties_to_update = select_from(request.json, ['endpoint', 'methods', 'response', 'queryParams'])
     patched_resource = resource_model.patch(resource_id, properties_to_update)
     return Response(
         response=patched_resource.to_json(),
