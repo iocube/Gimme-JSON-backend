@@ -2,7 +2,7 @@ import json
 from flask import Blueprint, request, Response
 from app.resource.model import ResourceModel
 from app.resource import validators
-
+from pymongo.errors import DuplicateKeyError
 
 HTTP_OK = 200
 HTTP_BAD_REQUEST = 400
@@ -67,7 +67,15 @@ def create_new_resource():
         )
 
     # TODO: duplicate endpoints are allowed only if they contain unique methods.
-    new_resource = resource_model.create(request.json['endpoint'], request.json['methods'], request.json['response'], request.json['queryParams'])
+    try:
+        new_resource = resource_model.create(request.json['endpoint'], request.json['methods'], request.json['response'], request.json['queryParams'])
+    except DuplicateKeyError:
+        error_response.push('methods', 'Each endpoint should have unique methods.')
+        return Response(
+            response=error_response.to_json(),
+            status=HTTP_BAD_REQUEST,
+            mimetype='application'
+        )
 
     return Response(
         response=new_resource.to_json(),
@@ -118,14 +126,22 @@ def patch_resource(resource_id):
     if request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
         error_response.push('response', 'response field is not valid JSON.')
 
-    if errors:
+    if not error_response.is_empty():
         return Response(
             response=error_response.to_json(),
             status=HTTP_BAD_REQUEST,
             mimetype='application/json'
         )
 
-    patched_resource = resource_model.patch(resource_id, updated_fields)
+    try:
+        patched_resource = resource_model.patch(resource_id, updated_fields)
+    except DuplicateKeyError:
+        error_response.push('methods', 'Each endpoint should have unique methods.')
+        return Response(
+            response=error_response.to_json(),
+            status=HTTP_BAD_REQUEST,
+            mimetype='application'
+        )
 
     return Response(
         response=patched_resource.to_json(),

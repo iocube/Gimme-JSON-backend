@@ -20,10 +20,10 @@ def is_methods_field_valid(methods):
         return False
 
     # methods field should contain only valid fields
-    for m in methods:
-        if not m in VALID_HTTP_METHODS:
-            return True
-    return False
+    for method in methods:
+        if not method in VALID_HTTP_METHODS:
+            return False
+    return True
 
 def is_response_field_valid(response):
     try:
