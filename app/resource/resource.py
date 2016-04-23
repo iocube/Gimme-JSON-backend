@@ -1,6 +1,7 @@
 import json
 from flask import Blueprint, request, Response
-from model import ResourceModel
+from app.resource.model import ResourceModel
+from app.resource import validators
 
 
 HTTP_OK = 200
@@ -9,9 +10,32 @@ HTTP_BAD_REQUEST = 400
 blueprint = Blueprint('resource', __name__)
 resource_model = ResourceModel()
 
-def select_from(target, what):
+def select_from_request(target, what):
     properties = {key: val for key, val in target.iteritems() if key in what}
     return properties
+
+def which_fields_missing(request, fields):
+    missing_fields = []
+    for prop in fields:
+        if not request.has_key(prop):
+            missing_fields.append(prop)
+    return missing_fields
+
+class ErrorResponse(object):
+    def __init__(self):
+        self.response = {}
+
+    def push(self, field, error):
+        if self.response.has_key(field):
+            self.response[field].append(error)
+        else:
+            self.response[field] = [error]
+
+    def to_json(self):
+        return json.dumps(self.response)
+
+    def is_empty(self):
+        return self.response == {}
 
 @blueprint.route('/resource', methods=['GET'])
 def get_resources_list():
@@ -23,9 +47,28 @@ def get_resources_list():
 
 @blueprint.route('/resource', methods=['POST'])
 def create_new_resource():
-    payload = request.json
-    payload['methods'].sort()
-    new_resource = resource_model.create(payload['endpoint'], payload['methods'], payload['response'], payload['queryParams'])
+    error_response = ErrorResponse()
+
+    missing_fields = which_fields_missing(request.json, ['endpoint', 'methods', 'response', 'queryParams'])
+    for field in missing_fields:
+        error_response.push(field, '{field} field is required'.format(field=field))
+
+    if request.json.has_key('metods') and not validators.is_methods_field_valid(request.json['methods']):
+        error_response.push('methods', 'methods field should contain list of valid HTTP methods')
+
+    if request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
+        error_response.push('response', 'response field is not valid JSON.')
+
+    if not error_response.is_empty():
+        return Response(
+            response=error_response.to_json(),
+            status=HTTP_BAD_REQUEST,
+            mimetype='application/json'
+        )
+
+    # TODO: duplicate endpoints are allowed only if they contain unique methods.
+    new_resource = resource_model.create(request.json['endpoint'], request.json['methods'], request.json['response'], request.json['queryParams'])
+
     return Response(
         response=new_resource.to_json(),
         status=HTTP_OK,
@@ -34,17 +77,56 @@ def create_new_resource():
 
 @blueprint.route('/resource/<string:resource_id>', methods=['DELETE'])
 def delete_resource(resource_id):
-    resource_model.delete(resource_id)
+    if not validators.is_resource_id_valid(resource_id):
+        return Response(
+            status=HTTP_BAD_REQUEST,
+            mimetype='application/json'
+        )
+
+    deleted = resource_model.delete(resource_id)
+
+    if deleted:
+        return Response(
+            status=HTTP_OK,
+            mimetype='application/json'
+        )
+
+    # such id does not exist, nothing was deleted.
     return Response(
-        response = '{}',
-        status=HTTP_OK,
+        status=HTTP_BAD_REQUEST,
         mimetype='application/json'
     )
 
 @blueprint.route('/resource/<string:resource_id>', methods=['PATCH'])
 def patch_resource(resource_id):
-    properties_to_update = select_from(request.json, ['endpoint', 'methods', 'response', 'queryParams'])
-    patched_resource = resource_model.patch(resource_id, properties_to_update)
+    # TODO: duplicate endpoints are allowed only if they contain unique methods.
+    if not validators.is_resource_id_valid(resource_id) or len(request.json.keys()) == 0:
+        return Response(
+            status=HTTP_BAD_REQUEST,
+            mimetype='application/json'
+        )
+
+    updated_fields = select_from_request(request.json, ['endpoint', 'methods', 'response', 'queryParams'])
+
+    error_response = ErrorResponse()
+    if request.json.has_key('endpoint') and not validators.is_endpoint_field_valid(request.json['endpoint']):
+        error_response.push('endpoint', 'endpoint should contain valid characaters and no spaces.')
+
+    if request.json.has_key('methods') and not validators.is_methods_field_valid(request.json['methods']):
+        error_response.push('methods', 'methods field should contain list of valid HTTP methods.')
+
+    if request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
+        error_response.push('response', 'response field is not valid JSON.')
+
+    if errors:
+        return Response(
+            response=error_response.to_json(),
+            status=HTTP_BAD_REQUEST,
+            mimetype='application/json'
+        )
+
+    patched_resource = resource_model.patch(resource_id, updated_fields)
+
     return Response(
         response=patched_resource.to_json(),
         status=HTTP_OK,
