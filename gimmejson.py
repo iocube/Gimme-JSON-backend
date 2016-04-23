@@ -24,17 +24,16 @@ def register_many_blueprints(app, blueprints):
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
 
+def register_resources(app):
+    # register all resources
+    resource_model = ResourceModel()
+    all_resources = resource_model.get_all_resources().original()
+    for i, res in enumerate(all_resources):
+        query_params_as_dict = {}
+        for param in res['queryParams']:
+            query_params_as_dict[param['param']] = param['response']
+        app.add_url_rule(res['endpoint'], 'resource-' + str(i), endpoint_handler_wrapper(res['response'], query_params_as_dict), methods=res['methods'])
+
 application = flask.Flask(__name__)
 register_many_blueprints(application, blueprints)
-
-# register all resources
-resource_model = ResourceModel()
-all_resources = resource_model.get_all_resources().original()
-for i, res in enumerate(all_resources):
-    query_params_as_dict = {}
-    for param in res['queryParams']:
-        query_params_as_dict[param['param']] = param['response']
-    application.add_url_rule(res['endpoint'], 'resource-' + str(i), endpoint_handler_wrapper(res['response'], query_params_as_dict), methods=res['methods'])
-
-if __name__ == '__main__':
-    application.run(debug=True)
+register_resources(application)

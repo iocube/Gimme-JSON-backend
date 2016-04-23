@@ -1,0 +1,26 @@
+[
+  {
+    "response": "[{\"name\": \"Alice\", \"city\": \"Berlin\"}, {\"name\": \"Bob\", \"city\": \"Tel-Aviv\"}, {\"name\": \"Charlie\", \"city\": \"Paris\"}]",
+    "endpoint": "/api/v1/people",
+    "methods": [
+      "GET"
+    ],
+    "queryParams": []
+  },
+  {
+    "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
+    "endpoint": "/api/v1/people/<string:pid>",
+    "methods": [
+      "GET"
+    ],
+    "queryParams": []
+  },
+  {
+    "response": "{\"name\": \"Alice\", \"city\": \"Tel-Aviv\"}",
+    "endpoint": "/api/v1/people/<string:pid>",
+    "methods": [
+      "PATCH"
+    ],
+    "queryParams": []
+  }
+]
