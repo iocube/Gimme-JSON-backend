@@ -1,3 +1,4 @@
+import pymongo
 import json
 import settings
 from gimmejson import application
@@ -10,7 +11,7 @@ database_manager = Manager()
 
 @database_manager.command
 def createindexes():
-    database[settings.MONGODB_COLLECTION_RESOURCE].create_index({'endpoint': 1, 'methods': 1})
+    database[settings.MONGODB_COLLECTION_RESOURCE].create_index([('endpoint', pymongo.ASCENDING), ('methods', pymongo.ASCENDING)], unique=True)
 
 @database_manager.command
 def drop():
