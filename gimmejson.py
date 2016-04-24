@@ -3,7 +3,7 @@ import flask
 from flask import Response, request
 from app import blueprints
 from app.resource.model import ResourceModel
-
+from settings import settings
 
 def assign(source, destination):
     for k in source.keys():
@@ -35,5 +35,7 @@ def register_resources(app):
         app.add_url_rule(res['endpoint'], 'resource-' + str(i), endpoint_handler_wrapper(res['response'], query_params_as_dict), methods=res['methods'])
 
 application = flask.Flask(__name__)
+application.config.from_object(settings)
+
 register_many_blueprints(application, blueprints)
 register_resources(application)

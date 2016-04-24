@@ -1,4 +1,4 @@
-import settings
+from settings import settings
 from pymongo import ReturnDocument
 from pymongo.results import InsertOneResult
 from bson import json_util

@@ -1,5 +1,5 @@
 import pymongo
-import settings
+from settings import settings
 
 
 connection = pymongo.MongoClient()

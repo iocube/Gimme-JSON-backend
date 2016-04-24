@@ -1,2 +1,22 @@
-MONGODB_NAME = 'gimmejsondb'
-MONGODB_COLLECTION_RESOURCE = 'resources'
+import os
+
+
+class BaseSettings(object):
+    MONGODB_COLLECTION_RESOURCE = 'resources'
+
+class Development(BaseSettings):
+    DEBUG = True
+    MONGODB_NAME = 'gimmejsondb'
+
+class Testing(BaseSettings):
+    TESTING = True
+    MONGODB_NAME = 'test_gimmejsondb'
+
+settings_choices = {
+    'default': Development,
+    'development': Development,
+    'testing': Testing
+}
+
+settings_name = os.environ.get('GIMMEJSON_SETTINGS', 'default')
+settings = settings_choices[settings_name]
