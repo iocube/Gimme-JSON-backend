@@ -53,7 +53,7 @@ def create_new_resource():
     for field in missing_fields:
         error_response.push(field, '{field} field is required'.format(field=field))
 
-    if request.json.has_key('metods') and not validators.is_methods_field_valid(request.json['methods']):
+    if request.json.has_key('methods') and not validators.is_methods_field_valid(request.json['methods']):
         error_response.push('methods', 'methods field should contain list of valid HTTP methods')
 
     if request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
@@ -66,11 +66,10 @@ def create_new_resource():
             mimetype='application/json'
         )
 
-    # TODO: duplicate endpoints are allowed only if they contain unique methods.
     try:
         new_resource = resource_model.create(request.json['endpoint'], request.json['methods'], request.json['response'], request.json['queryParams'])
     except DuplicateKeyError:
-        error_response.push('methods', 'Each endpoint should have unique methods.')
+        error_response.push('endpoint', 'Each endpoint should have unique methods.')
         return Response(
             response=error_response.to_json(),
             status=HTTP_BAD_REQUEST,
@@ -107,16 +106,24 @@ def delete_resource(resource_id):
 
 @blueprint.route('/resource/<string:resource_id>', methods=['PATCH'])
 def patch_resource(resource_id):
-    # TODO: duplicate endpoints are allowed only if they contain unique methods.
     if not validators.is_resource_id_valid(resource_id) or len(request.json.keys()) == 0:
         return Response(
             status=HTTP_BAD_REQUEST,
             mimetype='application/json'
         )
 
+    error_response = ErrorResponse()
     updated_fields = select_from_request(request.json, ['endpoint', 'methods', 'response', 'queryParams'])
 
-    error_response = ErrorResponse()
+    # if no fields to update return error
+    if not updated_fields:
+        error_response.push('general', 'nothing to update')
+        return Response(
+            response=error_response.to_json(),
+            status=HTTP_BAD_REQUEST,
+            mimetype='application/json'
+        )
+
     if request.json.has_key('endpoint') and not validators.is_endpoint_field_valid(request.json['endpoint']):
         error_response.push('endpoint', 'endpoint should contain valid characaters and no spaces.')
 
@@ -136,7 +143,7 @@ def patch_resource(resource_id):
     try:
         patched_resource = resource_model.patch(resource_id, updated_fields)
     except DuplicateKeyError:
-        error_response.push('methods', 'Each endpoint should have unique methods.')
+        error_response.push('endpoint', 'Each endpoint should have unique methods.')
         return Response(
             response=error_response.to_json(),
             status=HTTP_BAD_REQUEST,
