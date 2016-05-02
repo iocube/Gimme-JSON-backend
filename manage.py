@@ -1,6 +1,6 @@
 import pymongo
 import json
-import settings
+from settings import settings
 from gimmejson import application
 from flask.ext.script import Manager, Server
 from app.database import database, connection
