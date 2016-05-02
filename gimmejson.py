@@ -1,9 +1,10 @@
 import json
 import flask
 from flask import Response, request
-from app import blueprints
+from app import blueprints, utility
 from app.resource.model import ResourceModel
 from settings import settings
+
 
 def assign(source, destination):
     for k in source.keys():
@@ -11,6 +12,7 @@ def assign(source, destination):
     return destination
 
 def endpoint_handler_wrapper(response, query_params):
+    @utility.crossdomain
     def endpoint_handler(*args, **kwargs):
         # handle query params
         response_dict = json.loads(response)
