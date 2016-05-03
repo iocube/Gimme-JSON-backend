@@ -3,6 +3,8 @@ from flask import Blueprint, request, Response
 from app.resource.model import ResourceModel
 from app.resource import validators
 from pymongo.errors import DuplicateKeyError
+from app import utility
+
 
 HTTP_OK = 200
 HTTP_BAD_REQUEST = 400
