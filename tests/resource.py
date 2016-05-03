@@ -117,6 +117,18 @@ class ResourceTest(unittest.TestCase):
         error = json.loads(response.get_data())
         self.assertTrue(error.has_key('methods'))
 
+    def test_return_error_if_all_fields_missing(self):
+        payload = {}
+
+        response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
+        error = json.loads(response.get_data())
+
+        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+
+        response = self.client.post('/resource', data=None, content_type='application/json')
+
+        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+
     def test_delete_resource(self):
         payload = {
             "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
