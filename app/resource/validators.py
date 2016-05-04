@@ -14,7 +14,7 @@ def is_resource_id_valid(resource_id):
     return ObjectId.is_valid(resource_id)
 
 def is_methods_field_valid(methods):
-    VALID_HTTP_METHODS = ['GET', 'POST', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']
+    VALID_HTTP_METHODS = ['GET', 'POST', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'PUT']
 
     if not isinstance(methods, list) or len(methods) == 0:
         return False

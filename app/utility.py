@@ -9,7 +9,6 @@ def crossdomain(*args, **kwargs):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            print "methods: {methods}".format(methods=methods)
             allowed_methods = ', '.join(sorted(method.upper() for method in methods))
             crossdomain_headers = {
                 'Access-Control-Allow-Origin': '*',
