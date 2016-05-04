@@ -87,7 +87,7 @@ def create_new_resource():
     )
 
 @blueprint.route('/resource/<string:resource_id>', methods=['DELETE'])
-@utility.crossdomain(methods=['DELETE', 'PATCH'])
+@utility.crossdomain(methods=['DELETE', 'PATCH', 'PUT'])
 def delete_resource(resource_id):
     if not validators.is_resource_id_valid(resource_id):
         return Response(
@@ -110,7 +110,7 @@ def delete_resource(resource_id):
     )
 
 @blueprint.route('/resource/<string:resource_id>', methods=['PATCH'])
-@utility.crossdomain(methods=['DELETE', 'PATCH'])
+@utility.crossdomain(methods=['DELETE', 'PATCH', 'PUT'])
 def patch_resource(resource_id):
     if not validators.is_resource_id_valid(resource_id) or len(request.json.keys()) == 0:
         return Response(
@@ -131,7 +131,7 @@ def patch_resource(resource_id):
         )
 
     if request.json.has_key('endpoint') and not validators.is_endpoint_field_valid(request.json['endpoint']):
-        error_response.push('endpoint', 'endpoint should contain valid characaters and no spaces.')
+        error_response.push('endpoint', 'endpoint should contain valid characters and no spaces.')
 
     if request.json.has_key('methods') and not validators.is_methods_field_valid(request.json['methods']):
         error_response.push('methods', 'methods field should contain list of valid HTTP methods.')
@@ -158,6 +158,52 @@ def patch_resource(resource_id):
 
     return Response(
         response=patched_resource.to_json(),
+        status=HTTP_OK,
+        mimetype='application/json'
+    )
+
+@blueprint.route('/resource/<string:resource_id>', methods=['PUT'])
+@utility.crossdomain(methods=['DELETE', 'PATCH', 'PUT'])
+def put_resource(resource_id):
+    if not validators.is_resource_id_valid(resource_id) or len(request.json.keys()) == 0:
+        return Response(
+            status=HTTP_BAD_REQUEST,
+            mimetype='application/json'
+        )
+
+    error_response = ErrorResponse()
+
+    if request.json.has_key('endpoint') and not validators.is_endpoint_field_valid(request.json['endpoint']):
+        error_response.push('endpoint', 'endpoint should contain valid characters and no spaces.')
+
+    if request.json.has_key('methods') and not validators.is_methods_field_valid(request.json['methods']):
+        error_response.push('methods', 'methods field should contain list of valid HTTP methods.')
+
+    if request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
+        error_response.push('response', 'response field is not valid JSON.')
+
+    if not error_response.is_empty():
+        return Response(
+            response=error_response.to_json(),
+            status=HTTP_BAD_REQUEST,
+            mimetype='application/json'
+        )
+
+    if request.json.has_key('_id'):
+        del request.json['_id']
+
+    try:
+        updated_resource = resource_model.replace(resource_id, request.json)
+    except DuplicateKeyError:
+        error_response.push('endpoint', 'Each endpoint should have unique methods.')
+        return Response(
+            response=error_response.to_json(),
+            status=HTTP_BAD_REQUEST,
+            mimetype='application'
+        )
+
+    return Response(
+        response=updated_resource.to_json(),
         status=HTTP_OK,
         mimetype='application/json'
     )

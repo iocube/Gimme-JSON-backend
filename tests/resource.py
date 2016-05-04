@@ -5,10 +5,10 @@ from gimmejson import application
 from app import database
 from settings import settings
 
+
 HTTP_OK = 200
 HTTP_BAD_REQUEST = 400
 
-# pythom -m tests.resource
 class ResourceTest(unittest.TestCase):
     def setUp(self):
         database.connection.drop_database(settings.MONGODB_NAME)
@@ -245,6 +245,84 @@ class ResourceTest(unittest.TestCase):
         response = self.client.patch('/resource/' + resource_id, data=json.dumps(patch_payload), content_type='application/json')
 
         self.assertTrue(response.status_code, HTTP_BAD_REQUEST)
+
+    def test_should_put_successfully(self):
+        """
+        PUT
+        """
+        payload = {
+            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
+            "endpoint": "/api/v1/test",
+            "methods": [
+              "GET"
+            ],
+            "queryParams": []
+        }
+
+        response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
+        new_resource_id = json.loads(response.get_data())['$oid']
+
+        payload['methods'] = ['POST']
+        response = self.client.put('/resource/' + new_resource_id, data=json.dumps(payload), content_type='application/json')
+        updated_resource = json.loads(response.get_data())
+
+        self.assertEqual(updated_resource['methods'], ['POST'])
+
+    def test_should_ignore_id_on_put(self):
+        """
+        PUT
+        """
+        payload = {
+            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
+            "endpoint": "/api/v1/test",
+            "methods": [
+              "GET"
+            ],
+            "queryParams": []
+        }
+
+        response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
+        new_resource_id = json.loads(response.get_data())
+        payload['methods'] = ['POST']
+        payload['_id'] = new_resource_id
+
+        response = self.client.put('/resource/' + new_resource_id['$oid'], data=json.dumps(payload), content_type='application/json')
+
+        self.assertEqual(response.status_code, HTTP_OK)
+
+    def test_return_an_error_if_duplicates_when_put(self):
+        """
+        PUT
+        """
+        payload = {
+            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
+            "endpoint": "/api/v1/test",
+            "methods": [
+              "GET"
+            ],
+            "queryParams": []
+        }
+
+        another_payload = {
+            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
+            "endpoint": "/api/v1/test",
+            "methods": [
+              "POST"
+            ],
+            "queryParams": []
+        }
+
+        response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
+        new_resource_id = json.loads(response.get_data())['$oid']
+        self.assertEqual(response.status_code, HTTP_OK)
+
+        response = self.client.post('/resource', data=json.dumps(another_payload), content_type='application/json')
+        new_resource_id = json.loads(response.get_data())['$oid']
+        self.assertEqual(response.status_code, HTTP_OK)
+
+        another_payload['methods'] = ['GET']
+        response = self.client.put('/resource/' + new_resource_id, data=json.dumps(another_payload), content_type='application/json')
+        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
 
 if __name__ == '__main__':
     unittest.main()

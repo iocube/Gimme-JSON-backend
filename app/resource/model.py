@@ -34,3 +34,6 @@ class ResourceModel(object):
     def patch(self, resource_id, properties):
         properties = {'$set': properties}
         return ModelResult(self.collection.find_one_and_update({'_id': ObjectId(resource_id)}, properties, return_document=ReturnDocument.AFTER))
+
+    def replace(self, resource_id, updated_resource):
+        return ModelResult(self.collection.find_one_and_replace({'_id': ObjectId(resource_id)}, updated_resource, return_document=ReturnDocument.AFTER))
