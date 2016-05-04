@@ -12,7 +12,7 @@ def assign(source, destination):
     return destination
 
 def endpoint_handler_wrapper(response, query_params):
-    @utility.crossdomain
+    @utility.crossdomain(methods=['OPTIONS', 'GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
     def endpoint_handler(*args, **kwargs):
         # handle query params
         response_dict = json.loads(response)

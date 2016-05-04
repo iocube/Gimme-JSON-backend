@@ -40,7 +40,7 @@ class ErrorResponse(object):
         return self.response == {}
 
 @blueprint.route('/resource', methods=['GET'])
-@utility.crossdomain
+@utility.crossdomain(methods=['GET'])
 def get_resources_list():
     return Response(
         response=resource_model.get_all_resources().to_json(),
@@ -49,7 +49,7 @@ def get_resources_list():
     )
 
 @blueprint.route('/resource', methods=['POST'])
-@utility.crossdomain
+@utility.crossdomain(methods=['POST'])
 def create_new_resource():
     error_response = ErrorResponse()
 
@@ -87,7 +87,7 @@ def create_new_resource():
     )
 
 @blueprint.route('/resource/<string:resource_id>', methods=['DELETE'])
-@utility.crossdomain
+@utility.crossdomain(methods=['DELETE', 'PATCH'])
 def delete_resource(resource_id):
     if not validators.is_resource_id_valid(resource_id):
         return Response(
@@ -110,7 +110,7 @@ def delete_resource(resource_id):
     )
 
 @blueprint.route('/resource/<string:resource_id>', methods=['PATCH'])
-@utility.crossdomain
+@utility.crossdomain(methods=['DELETE', 'PATCH'])
 def patch_resource(resource_id):
     if not validators.is_resource_id_valid(resource_id) or len(request.json.keys()) == 0:
         return Response(

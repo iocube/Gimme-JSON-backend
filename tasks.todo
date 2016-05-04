@@ -17,3 +17,20 @@ Tasks:
   ✔ CORS @done(2016-05-02 19:17) @project(Tasks)
   ☐ handle empty POST requests
   ☐ consider adding decorator that will automatically set mimetype to 'application/json' of each request
+  ✔ [CORS] PATCH requests fail @done(2016-05-04 11:19) @project(Tasks)
+    both delete_resource and patch_resource working on same url and both defined different allowed methods in OPTIONS
+    flask choose to dispatch OPTIONS request to the delete_resource where PATCH was not in allowed methods resulting in fail.
+  ☐ [CORS] find way to automatically set methods for resource without manually specifying them when using the crossdomain decorator.
+    it's tricky when resource is defined multiple times but with different methods. may be its possible thru
+    current_app.make_default_options_response().headers['allow']
+  ☐ flask throws BadRequest if JSON (request.json) is not valid, the crossdomain decorator does not handle this case
+    and the needed headers for cross domain request are not set since error is raised.
+    Bottom line, the front-end developer get misleading message telling that crossdomain requests are not allowed.
+    XMLHttpRequest cannot load http://localhost:5000/resource/5728f49aeceefb0932505ab8.
+    No 'Access-Control-Allow-Origin' header is present on the requested resource.
+    Origin 'http://localhost:8000' is therefore not allowed access. The response had HTTP status code 400.
+    Possible solutions
+      - forget about it
+      - extend Request class and override on_json_loading_failed
+      - try to handle it manually inside the crossdomain decorator
+    ☐ whats the purpose of 'allow' header that flask automatically sets?
