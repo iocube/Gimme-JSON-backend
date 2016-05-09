@@ -26,7 +26,10 @@ class ResourceModel(object):
 
     def create(self, endpoint, methods, response, query_params):
         # TODO: endpoint can not be defined with same methods twice
-        return ModelResult(self.collection.insert_one({'endpoint': endpoint, 'methods': methods, 'response': response, 'queryParams': query_params}))
+        resource = {'endpoint': endpoint, 'methods': methods, 'response': response, 'queryParams': query_params}
+        result = self.collection.insert_one(resource)
+        resource['_id'] = result.inserted_id
+        return ModelResult(resource)
 
     def delete(self, resource_id):
         return self.collection.find_one_and_delete({'_id': ObjectId(resource_id)})
