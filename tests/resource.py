@@ -3,11 +3,9 @@ import unittest
 import pymongo
 from gimmejson import application
 from app import database
+from app.http_status_codes import HTTP_OK, HTTP_BAD_REQUEST
 from settings import settings
 
-
-HTTP_OK = 200
-HTTP_BAD_REQUEST = 400
 
 class ResourceTest(unittest.TestCase):
     def setUp(self):

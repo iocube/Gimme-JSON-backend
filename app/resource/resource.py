@@ -4,10 +4,8 @@ from app.resource.model import ResourceModel
 from app.resource import validators
 from pymongo.errors import DuplicateKeyError
 from app import utility
+from app.http_status_codes import HTTP_OK, HTTP_BAD_REQUEST
 
-
-HTTP_OK = 200
-HTTP_BAD_REQUEST = 400
 
 blueprint = Blueprint('resource', __name__)
 resource_model = ResourceModel()
