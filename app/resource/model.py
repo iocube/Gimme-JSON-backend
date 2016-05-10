@@ -24,9 +24,9 @@ class ResourceModel(object):
     def get_all_resources(self):
         return ModelResult(self.collection.find())
 
-    def create(self, endpoint, methods, response, query_params):
+    def create(self, endpoint, methods, response):
         # TODO: endpoint can not be defined with same methods twice
-        resource = {'endpoint': endpoint, 'methods': methods, 'response': response, 'queryParams': query_params}
+        resource = {'endpoint': endpoint, 'methods': methods, 'response': response}
         result = self.collection.insert_one(resource)
         resource['_id'] = result.inserted_id
         return ModelResult(resource)

@@ -4,55 +4,48 @@
     "endpoint": "/api/v1/people",
     "methods": [
       "GET"
-    ],
-    "queryParams": []
+    ]
   },
   {
     "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
     "endpoint": "/api/v1/people/<string:pid>",
     "methods": [
       "GET"
-    ],
-    "queryParams": []
+    ]
   },
   {
     "response": "{\"name\": \"Alice\", \"city\": \"Tel-Aviv\"}",
     "endpoint": "/api/v1/people/<string:pid>",
     "methods": [
       "PATCH"
-    ],
-    "queryParams": []
+    ]
   },
   {
     "response": "{\"name\": \"Rocket League\"}",
     "endpoint": "/api/v1/games/<string:name>",
     "methods": [
       "GET"
-    ],
-    "queryParams": []
+    ]
   },
   {
     "response": "{\"name\": \"Rainbow Six: Siege\"}",
     "endpoint": "/api/v1/games/<string:name>",
     "methods": [
       "PATCH"
-    ],
-    "queryParams": []
+    ]
   },
   {
     "response": "{\"name\": \"GTA 5\"}",
     "endpoint": "/api/v1/games/<string:name>",
     "methods": [
       "POST"
-    ],
-    "queryParams": []
+    ]
   },
   {
     "response": "[{\"name\": \"Forrest Gump\"}, {\"name\": \"American History X\"}]",
     "endpoint": "/api/v1/movies",
     "methods": [
       "GET"
-    ],
-    "queryParams": []
+    ]
   }
 ]

@@ -30,8 +30,7 @@ class ResourceTest(unittest.TestCase):
             "endpoint": "/api/v1/test",
             "methods": [
               "GET"
-            ],
-            "queryParams": []
+            ]
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
@@ -48,8 +47,7 @@ class ResourceTest(unittest.TestCase):
             "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
             "methods": [
               "GET"
-            ],
-            "queryParams": []
+            ]
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
@@ -66,8 +64,7 @@ class ResourceTest(unittest.TestCase):
             "endpoint": "/api/v1/test",
             "methods": [
               "GET"
-            ],
-            "queryParams": []
+            ]
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
@@ -87,8 +84,7 @@ class ResourceTest(unittest.TestCase):
             "methods": [
               "GET",
               "POST"
-            ],
-            "queryParams": []
+            ]
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
@@ -107,8 +103,7 @@ class ResourceTest(unittest.TestCase):
 
         payload = {
             "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "queryParams": []
+            "endpoint": "/api/v1/test"
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
@@ -135,8 +130,7 @@ class ResourceTest(unittest.TestCase):
             "endpoint": "/api/v1/test",
             "methods": [
               "GET"
-            ],
-            "queryParams": []
+            ]
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
@@ -159,8 +153,7 @@ class ResourceTest(unittest.TestCase):
             "endpoint": "/api/v1/test",
             "methods": [
               "GET"
-            ],
-            "queryParams": []
+            ]
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
@@ -172,8 +165,7 @@ class ResourceTest(unittest.TestCase):
             "endpoint": "/api/v1/people",
             "methods": [
               "POST"
-            ],
-            "queryParams": []
+            ]
         }
 
         response = self.client.patch('/resource/' + resource_id, data=json.dumps(new_payload), content_type='application/json')
@@ -193,8 +185,7 @@ class ResourceTest(unittest.TestCase):
             "endpoint": "/api/v1/test",
             "methods": [
               "GET"
-            ],
-            "queryParams": []
+            ]
         }
 
         payload_second = {
@@ -202,8 +193,7 @@ class ResourceTest(unittest.TestCase):
             "endpoint": "/api/v1/people",
             "methods": [
               "GET"
-            ],
-            "queryParams": []
+            ]
         }
 
         self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
@@ -230,8 +220,7 @@ class ResourceTest(unittest.TestCase):
             "endpoint": "/api/v1/test",
             "methods": [
               "GET"
-            ],
-            "queryParams": []
+            ]
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
@@ -255,8 +244,7 @@ class ResourceTest(unittest.TestCase):
             "endpoint": "/api/v1/test",
             "methods": [
               "GET"
-            ],
-            "queryParams": []
+            ]
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
@@ -277,8 +265,7 @@ class ResourceTest(unittest.TestCase):
             "endpoint": "/api/v1/test",
             "methods": [
               "GET"
-            ],
-            "queryParams": []
+            ]
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
@@ -299,8 +286,7 @@ class ResourceTest(unittest.TestCase):
             "endpoint": "/api/v1/test",
             "methods": [
               "GET"
-            ],
-            "queryParams": []
+            ]
         }
 
         another_payload = {
@@ -308,8 +294,7 @@ class ResourceTest(unittest.TestCase):
             "endpoint": "/api/v1/test",
             "methods": [
               "POST"
-            ],
-            "queryParams": []
+            ]
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')

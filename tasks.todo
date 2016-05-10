@@ -35,5 +35,6 @@ Tasks:
       - try to handle it manually inside the crossdomain decorator
     ☐ whats the purpose of 'allow' header that flask automatically sets?
     ✔ support for PUT method @done(2016-05-04 19:27) @project(Tasks)
-    ☐ remove existing code related to supporting query params until details on how it should be done more clear.
+    ✔ remove existing code related to supporting query params until details on how it should be done more clear. @done(2016-05-10 15:31) @project(Tasks)
     ☐ since HTTP status codes used in couple of places - add a module for them, i.e httpcodes.py
+    ☐ when registering resources (register_resource) via add_url_rule, think about more meaningful resource name (maybe '<methods>: <endpoint>')

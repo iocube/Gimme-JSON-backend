@@ -53,7 +53,7 @@ def get_resources_list():
 def create_new_resource():
     error_response = ErrorResponse()
 
-    missing_fields = which_fields_missing(request.json, ['endpoint', 'methods', 'response', 'queryParams'])
+    missing_fields = which_fields_missing(request.json, ['endpoint', 'methods', 'response'])
     for field in missing_fields:
         error_response.push(field, '{field} field is required'.format(field=field))
 
@@ -71,7 +71,7 @@ def create_new_resource():
         )
 
     try:
-        new_resource = resource_model.create(request.json['endpoint'], request.json['methods'], request.json['response'], request.json['queryParams'])
+        new_resource = resource_model.create(request.json['endpoint'], request.json['methods'], request.json['response'])
     except DuplicateKeyError:
         error_response.push('endpoint', 'Each endpoint should have unique methods.')
         return Response(
@@ -119,7 +119,7 @@ def patch_resource(resource_id):
         )
 
     error_response = ErrorResponse()
-    updated_fields = select_from_request(request.json, ['endpoint', 'methods', 'response', 'queryParams'])
+    updated_fields = select_from_request(request.json, ['endpoint', 'methods', 'response'])
 
     # if no fields to update return error
     if not updated_fields:
