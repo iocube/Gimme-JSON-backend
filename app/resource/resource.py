@@ -87,7 +87,7 @@ def create_new_resource():
     )
 
 @blueprint.route('/resource/<string:resource_id>', methods=['DELETE'])
-@utility.crossdomain(methods=['DELETE', 'PATCH', 'PUT'])
+@utility.crossdomain()
 def delete_resource(resource_id):
     if not validators.is_resource_id_valid(resource_id):
         return Response(
@@ -110,7 +110,7 @@ def delete_resource(resource_id):
     )
 
 @blueprint.route('/resource/<string:resource_id>', methods=['PATCH'])
-@utility.crossdomain(methods=['DELETE', 'PATCH', 'PUT'])
+@utility.crossdomain()
 def patch_resource(resource_id):
     if not validators.is_resource_id_valid(resource_id) or len(request.json.keys()) == 0:
         return Response(
@@ -163,7 +163,7 @@ def patch_resource(resource_id):
     )
 
 @blueprint.route('/resource/<string:resource_id>', methods=['PUT'])
-@utility.crossdomain(methods=['DELETE', 'PATCH', 'PUT'])
+@utility.crossdomain()
 def put_resource(resource_id):
     if not validators.is_resource_id_valid(resource_id) or len(request.json.keys()) == 0:
         return Response(
