@@ -26,8 +26,13 @@ def register_resources(app):
     # register all resources
     resource_model = ResourceModel()
     all_resources = resource_model.get_all_resources().original()
-    for i, res in enumerate(all_resources):
-        app.add_url_rule(res['endpoint'], 'resource-' + str(i), endpoint_handler_wrapper(res['response']), methods=res['methods'])
+    for resource in all_resources:
+        app.add_url_rule(
+            rule=resource['endpoint'],
+            endpoint=str(resource['_id']),
+            view_func=endpoint_handler_wrapper(resource['response']),
+            methods=resource['methods']
+        )
 
 application = flask.Flask(__name__)
 application.config.from_object(settings)
