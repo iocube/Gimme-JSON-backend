@@ -3,6 +3,7 @@ import os
 
 class BaseSettings(object):
     MONGODB_COLLECTION_RESOURCE = 'resources'
+    TOUCH_ME_TO_RELOAD = 'settings.py'
 
 class Development(BaseSettings):
     DEBUG = True

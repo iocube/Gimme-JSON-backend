@@ -1,6 +1,7 @@
 from resource import resource
-
+from server import server
 
 blueprints = [
-        resource.blueprint
+        resource.blueprint,
+        server.blueprint
 ]
