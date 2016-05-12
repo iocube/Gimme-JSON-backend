@@ -1,6 +1,7 @@
 import functools
 from flask import request, Response, current_app, make_response
-from werkzeug.exceptions import BadRequest
+from app.http_status_codes import HTTP_OK
+from bson import json_util
 
 
 def crossdomain(origin='*', methods=None, headers=None):
@@ -41,3 +42,26 @@ def crossdomain(origin='*', methods=None, headers=None):
         wrapper.provide_automatic_options = False
         return wrapper
     return decorator
+
+def to_json(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        func_response = func(*args, **kwargs)
+
+        if not isinstance(func_response, tuple):
+            return Response(response=jsonify(func_response), mimetype='application/json')
+
+        unpack_or_none = lambda response=None, status=HTTP_OK, headers=None: (response, status, headers)
+        response, status, headers = unpack_or_none(*func_response)
+        jsonfied_response = Response(response=jsonify(response), status=status, mimetype='application/json')
+
+        if headers:
+            jsonfied_response.headers.extend(headers)
+
+        return jsonfied_response
+    return wrapper
+
+def jsonify(data):
+    if hasattr(data, 'to_json'):
+        return data.to_json()
+    return json_util.dumps(data)

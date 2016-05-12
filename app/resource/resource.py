@@ -39,15 +39,13 @@ class ErrorResponse(object):
 
 @blueprint.route('/resource', methods=['GET'])
 @utility.crossdomain(methods=['GET'])
+@utility.to_json
 def get_resources_list():
-    return Response(
-        response=resource_model.get_all_resources().to_json(),
-        status=HTTP_OK,
-        mimetype='application/json'
-    )
+    return resource_model.get_all_resources()
 
 @blueprint.route('/resource', methods=['POST'])
 @utility.crossdomain(methods=['POST'])
+@utility.to_json
 def create_new_resource():
     error_response = ErrorResponse()
 
@@ -62,59 +60,37 @@ def create_new_resource():
         error_response.push('response', 'response field is not valid JSON.')
 
     if not error_response.is_empty():
-        return Response(
-            response=error_response.to_json(),
-            status=HTTP_BAD_REQUEST,
-            mimetype='application/json'
-        )
+        return error_response, HTTP_BAD_REQUEST
 
     try:
         new_resource = resource_model.create(request.json['endpoint'], request.json['methods'], request.json['response'])
     except DuplicateKeyError:
         error_response.push('endpoint', 'Each endpoint should have unique methods.')
-        return Response(
-            response=error_response.to_json(),
-            status=HTTP_BAD_REQUEST,
-            mimetype='application'
-        )
+        return error_response, HTTP_BAD_REQUEST
 
-    return Response(
-        response=new_resource.to_json(),
-        status=HTTP_OK,
-        mimetype='application/json'
-    )
+    return new_resource
 
 @blueprint.route('/resource/<string:resource_id>', methods=['DELETE'])
 @utility.crossdomain()
+@utility.to_json
 def delete_resource(resource_id):
     if not validators.is_resource_id_valid(resource_id):
-        return Response(
-            status=HTTP_BAD_REQUEST,
-            mimetype='application/json'
-        )
+        return {}, HTTP_BAD_REQUEST
 
     deleted = resource_model.delete(resource_id)
 
     if deleted:
-        return Response(
-            status=HTTP_OK,
-            mimetype='application/json'
-        )
+        return {}
 
     # such id does not exist, nothing was deleted.
-    return Response(
-        status=HTTP_BAD_REQUEST,
-        mimetype='application/json'
-    )
+    return {}, HTTP_BAD_REQUEST
 
 @blueprint.route('/resource/<string:resource_id>', methods=['PATCH'])
 @utility.crossdomain()
+@utility.to_json
 def patch_resource(resource_id):
     if not validators.is_resource_id_valid(resource_id) or len(request.json.keys()) == 0:
-        return Response(
-            status=HTTP_BAD_REQUEST,
-            mimetype='application/json'
-        )
+        return {}, HTTP_BAD_REQUEST
 
     error_response = ErrorResponse()
     updated_fields = select_from_request(request.json, ['endpoint', 'methods', 'response'])
@@ -122,11 +98,7 @@ def patch_resource(resource_id):
     # if no fields to update return error
     if not updated_fields:
         error_response.push('general', 'nothing to update')
-        return Response(
-            response=error_response.to_json(),
-            status=HTTP_BAD_REQUEST,
-            mimetype='application/json'
-        )
+        return error_response, HTTP_BAD_REQUEST
 
     if request.json.has_key('endpoint') and not validators.is_endpoint_field_valid(request.json['endpoint']):
         error_response.push('endpoint', 'endpoint should contain valid characters and no spaces.')
@@ -138,36 +110,22 @@ def patch_resource(resource_id):
         error_response.push('response', 'response field is not valid JSON.')
 
     if not error_response.is_empty():
-        return Response(
-            response=error_response.to_json(),
-            status=HTTP_BAD_REQUEST,
-            mimetype='application/json'
-        )
+        return error_response, HTTP_BAD_REQUEST
 
     try:
         patched_resource = resource_model.patch(resource_id, updated_fields)
     except DuplicateKeyError:
         error_response.push('endpoint', 'Each endpoint should have unique methods.')
-        return Response(
-            response=error_response.to_json(),
-            status=HTTP_BAD_REQUEST,
-            mimetype='application'
-        )
+        return error_response, HTTP_BAD_REQUEST
 
-    return Response(
-        response=patched_resource.to_json(),
-        status=HTTP_OK,
-        mimetype='application/json'
-    )
+    return patched_resource
 
 @blueprint.route('/resource/<string:resource_id>', methods=['PUT'])
 @utility.crossdomain()
+@utility.to_json
 def put_resource(resource_id):
     if not validators.is_resource_id_valid(resource_id) or len(request.json.keys()) == 0:
-        return Response(
-            status=HTTP_BAD_REQUEST,
-            mimetype='application/json'
-        )
+        return {}, HTTP_BAD_REQUEST
 
     error_response = ErrorResponse()
 
@@ -181,11 +139,7 @@ def put_resource(resource_id):
         error_response.push('response', 'response field is not valid JSON.')
 
     if not error_response.is_empty():
-        return Response(
-            response=error_response.to_json(),
-            status=HTTP_BAD_REQUEST,
-            mimetype='application/json'
-        )
+        return error_response, HTTP_BAD_REQUEST
 
     if request.json.has_key('_id'):
         del request.json['_id']
@@ -194,14 +148,6 @@ def put_resource(resource_id):
         updated_resource = resource_model.replace(resource_id, request.json)
     except DuplicateKeyError:
         error_response.push('endpoint', 'Each endpoint should have unique methods.')
-        return Response(
-            response=error_response.to_json(),
-            status=HTTP_BAD_REQUEST,
-            mimetype='application'
-        )
+        return error_response, HTTP_BAD_REQUEST
 
-    return Response(
-        response=updated_resource.to_json(),
-        status=HTTP_OK,
-        mimetype='application/json'
-    )
+    return updated_resource

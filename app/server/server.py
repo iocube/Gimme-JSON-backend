@@ -9,6 +9,7 @@ blueprint = Blueprint('server', __name__)
 
 @blueprint.route('/server', methods=['DELETE'])
 @utility.crossdomain()
+@utility.to_json
 def server_reload():
     """
     Flask does not have method to reload server manually except for when
@@ -19,4 +20,4 @@ def server_reload():
     This will work only if flask development server running with use_reloader=True.
     """
     os.utime(settings.TOUCH_ME_TO_RELOAD, None)
-    return Response(status=HTTP_OK, mimetype='application/json')
+    return {}
