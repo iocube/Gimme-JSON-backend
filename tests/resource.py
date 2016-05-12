@@ -34,7 +34,7 @@ class ResourceTest(unittest.TestCase):
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
         new_resource = json.loads(response.get_data())
         self.assertEqual(response.status_code, HTTP_OK)
-        self.assertTrue(new_resource.has_key('$oid'))
+        self.assertTrue(new_resource.has_key('_id'))
 
     def test_return_error_if_endpoint_missing_for_new_resource(self):
         """
@@ -132,9 +132,9 @@ class ResourceTest(unittest.TestCase):
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
-        new_resource_id = json.loads(response.get_data())
-
-        response = self.client.delete('/resource/' + new_resource_id['$oid'])
+        new_resource = json.loads(response.get_data())
+        new_resource_id = new_resource['_id']['$oid']
+        response = self.client.delete('/resource/' + new_resource_id)
         self.assertEqual(response.status_code, HTTP_OK)
 
     def test_delete_unexistent_resource(self):
@@ -156,7 +156,7 @@ class ResourceTest(unittest.TestCase):
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
         new_resource = json.loads(response.get_data())
-        resource_id = new_resource['$oid']
+        resource_id = new_resource['_id']['$oid']
 
         new_payload = {
             "response": "{\"name\": \"Alice\", \"city\": \"Tel-Aviv\"}",
@@ -198,7 +198,7 @@ class ResourceTest(unittest.TestCase):
         response = self.client.post('/resource', data=json.dumps(payload_second), content_type='application/json')
 
         resource_to_patch = json.loads(response.get_data())
-        resource_id = resource_to_patch['$oid']
+        resource_id = resource_to_patch['_id']['$oid']
 
         resource_to_patch['endpoint'] = '/api/v1/test'
 
@@ -223,7 +223,7 @@ class ResourceTest(unittest.TestCase):
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
         new_resource = json.loads(response.get_data())
-        resource_id = new_resource['$oid']
+        resource_id = new_resource['_id']['$oid']
 
         patch_payload = {
             '_id': {'$oid': '571b7cfdeceefb4a395ef433'}
@@ -246,7 +246,7 @@ class ResourceTest(unittest.TestCase):
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
-        new_resource_id = json.loads(response.get_data())['$oid']
+        new_resource_id = json.loads(response.get_data())['_id']['$oid']
 
         payload['methods'] = ['POST']
         response = self.client.put('/resource/' + new_resource_id, data=json.dumps(payload), content_type='application/json')
@@ -271,7 +271,7 @@ class ResourceTest(unittest.TestCase):
         payload['methods'] = ['POST']
         payload['_id'] = new_resource_id
 
-        response = self.client.put('/resource/' + new_resource_id['$oid'], data=json.dumps(payload), content_type='application/json')
+        response = self.client.put('/resource/' + new_resource_id['_id']['$oid'], data=json.dumps(payload), content_type='application/json')
 
         self.assertEqual(response.status_code, HTTP_OK)
 
@@ -296,11 +296,11 @@ class ResourceTest(unittest.TestCase):
         }
 
         response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
-        new_resource_id = json.loads(response.get_data())['$oid']
+        new_resource_id = json.loads(response.get_data())['_id']['$oid']
         self.assertEqual(response.status_code, HTTP_OK)
 
         response = self.client.post('/resource', data=json.dumps(another_payload), content_type='application/json')
-        new_resource_id = json.loads(response.get_data())['$oid']
+        new_resource_id = json.loads(response.get_data())['_id']['$oid']
         self.assertEqual(response.status_code, HTTP_OK)
 
         another_payload['methods'] = ['GET']
