@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+import os
+import subprocess
+import sys
+
+
+exit_code = subprocess.call(['python', '-m', 'unittest', 'discover', 'tests'])
+sys.exit(exit_code)
