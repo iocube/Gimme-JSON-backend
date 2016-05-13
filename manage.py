@@ -48,6 +48,17 @@ def test(module_name=None, class_name=None, test_name=None):
         # run all tests
         subprocess.call(['python', '-m', 'unittest', 'discover', '-s', 'tests'])
 
+@manager.command
+def coverage():
+    """
+    Generate coverage.
+    """
+    # package name to generate the cover for
+    APPLICATION_PACKAGE = 'app'
+
+    subprocess.call('coverage run --source {package} -m unittest discover -s tests'.format(package=APPLICATION_PACKAGE).split())
+    subprocess.call(['coverage', 'html'])
+
 manager.add_command("runserver", Server(use_debugger=True, use_reloader=True))
 manager.add_command("database", database_manager)
 
