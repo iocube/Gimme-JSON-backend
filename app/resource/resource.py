@@ -89,10 +89,15 @@ def delete_resource(resource_id):
 @utility.crossdomain()
 @utility.to_json
 def patch_resource(resource_id):
-    if not validators.is_resource_id_valid(resource_id) or len(request.json.keys()) == 0:
+    error_response = ErrorResponse()
+
+    if not validators.is_resource_id_valid(resource_id):
         return {}, HTTP_BAD_REQUEST
 
-    error_response = ErrorResponse()
+    if not isinstance(request.json, dict) or len(request.json.keys()) == 0:
+        error_response.push('general', 'invalid request. nothing to change.')
+        return error_response, HTTP_BAD_REQUEST
+
     updated_fields = select_from_request(request.json, ['endpoint', 'methods', 'response'])
 
     # if no fields to update return error
@@ -124,18 +129,22 @@ def patch_resource(resource_id):
 @utility.crossdomain()
 @utility.to_json
 def put_resource(resource_id):
-    if not validators.is_resource_id_valid(resource_id) or len(request.json.keys()) == 0:
-        return {}, HTTP_BAD_REQUEST
-
     error_response = ErrorResponse()
 
-    if request.json.has_key('endpoint') and not validators.is_endpoint_field_valid(request.json['endpoint']):
+    if not validators.is_resource_id_valid(resource_id):
+        return {}, HTTP_BAD_REQUEST
+
+    if not isinstance(request.json, dict) or len(request.json.keys()) == 0:
+        error_response.push('general', 'resource should contain \'endpoint\', \'methods\' and \'response\' fields')
+        return error_response, HTTP_BAD_REQUEST
+
+    if not request.json.has_key('endpoint') or request.json.has_key('endpoint') and not validators.is_endpoint_field_valid(request.json['endpoint']):
         error_response.push('endpoint', 'endpoint should contain valid characters and no spaces.')
 
-    if request.json.has_key('methods') and not validators.is_methods_field_valid(request.json['methods']):
+    if not request.json.has_key('methods') or request.json.has_key('methods') and not validators.is_methods_field_valid(request.json['methods']):
         error_response.push('methods', 'methods field should contain list of valid HTTP methods.')
 
-    if request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
+    if not request.json.has_key('response') or request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
         error_response.push('response', 'response field is not valid JSON.')
 
     if not error_response.is_empty():

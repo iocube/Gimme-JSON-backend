@@ -251,7 +251,6 @@ class ResourceTest(unittest.TestCase):
         payload['methods'] = ['POST']
         response = self.client.put('/resource/' + new_resource_id, data=json.dumps(payload), content_type='application/json')
         updated_resource = json.loads(response.get_data())
-
         self.assertEqual(updated_resource['methods'], ['POST'])
 
     def test_should_ignore_id_on_put(self):
@@ -305,6 +304,73 @@ class ResourceTest(unittest.TestCase):
 
         another_payload['methods'] = ['GET']
         response = self.client.put('/resource/' + new_resource_id, data=json.dumps(another_payload), content_type='application/json')
+        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+
+    def test_return_error_if_all_fields_missing_on_put(self):
+        """
+        PUT
+        """
+        payload = {
+            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
+            "endpoint": "/api/v1/test",
+            "methods": [
+              "GET"
+            ]
+        }
+
+        response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
+        new_resource_id = json.loads(response.get_data())['_id']['$oid']
+
+        empty_payload = {}
+        response = self.client.put('/resource/' + new_resource_id, data=json.dumps(empty_payload), content_type='application/json')
+        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+
+    def test_return_error_if_response_missing_on_put(self):
+        payload = {
+            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
+            "endpoint": "/api/v1/test",
+            "methods": [
+              "GET"
+            ]
+        }
+
+        response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
+        new_resource_id = json.loads(response.get_data())['_id']['$oid']
+
+        del payload['response']
+        response = self.client.put('/resource/' + new_resource_id, data=json.dumps(payload), content_type='application/json')
+        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+
+    def test_return_error_if_methods_missing_on_put(self):
+        payload = {
+            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
+            "endpoint": "/api/v1/test",
+            "methods": [
+              "GET"
+            ]
+        }
+
+        response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
+        new_resource_id = json.loads(response.get_data())['_id']['$oid']
+
+        del payload['methods']
+        response = self.client.put('/resource/' + new_resource_id, data=json.dumps(payload), content_type='application/json')
+        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+
+    def test_return_error_if_endpoint_missing_on_put(self):
+        payload = {
+            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
+            "endpoint": "/api/v1/test",
+            "methods": [
+              "GET"
+            ]
+        }
+
+        response = self.client.post('/resource', data=json.dumps(payload), content_type='application/json')
+        new_resource_id = json.loads(response.get_data())['_id']['$oid']
+
+        del payload['endpoint']
+        response = self.client.put('/resource/' + new_resource_id, data=json.dumps(payload), content_type='application/json')
         self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
 
 if __name__ == '__main__':
