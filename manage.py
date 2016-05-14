@@ -29,7 +29,7 @@ def populate():
 
 @manager.option('-m', '--module', dest='module_name')
 @manager.option('-c', '--class', dest='class_name')
-@manager.option('-s', '--singletest', dest='test_name')
+@manager.option('-t', '--testname', dest='test_name')
 def test(module_name=None, class_name=None, test_name=None):
     """
     Run tests.

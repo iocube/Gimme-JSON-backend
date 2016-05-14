@@ -15,6 +15,9 @@ def select_from_request(target, what):
     return properties
 
 def which_fields_missing(request, fields):
+    if not request:
+        return fields
+
     missing_fields = []
     for prop in fields:
         if not request.has_key(prop):
@@ -49,16 +52,23 @@ def get_resources_list():
 def create_new_resource():
     error_response = ErrorResponse()
 
+    if not isinstance(request.json, dict) or len(request.json.keys()) == 0:
+        error_response.push('general', 'resource should contain \'endpoint\', \'methods\' and \'response\' fields')
+        return error_response, HTTP_BAD_REQUEST
+
     missing_fields = which_fields_missing(request.json, ['endpoint', 'methods', 'response'])
     for field in missing_fields:
         error_response.push(field, '{field} field is required'.format(field=field))
 
-    if request.json.has_key('methods') and not validators.is_methods_field_valid(request.json['methods']):
-        error_response.push('methods', 'methods field should contain list of valid HTTP methods')
+    if not request.json.has_key('endpoint') or request.json.has_key('endpoint') and not validators.is_endpoint_field_valid(request.json['endpoint']):
+        error_response.push('endpoint', 'endpoint should contain valid characters and no spaces.')
 
-    if request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
+    if not request.json.has_key('methods') or request.json.has_key('methods') and not validators.is_methods_field_valid(request.json['methods']):
+        error_response.push('methods', 'methods field should contain list of valid HTTP methods.')
+
+    if not request.json.has_key('response') or request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
         error_response.push('response', 'response field is not valid JSON.')
-
+        
     if not error_response.is_empty():
         return error_response, HTTP_BAD_REQUEST
 
