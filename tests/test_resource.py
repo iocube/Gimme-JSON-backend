@@ -46,9 +46,6 @@ class BaseTest(unittest.TestCase):
     def assertBadRequest(self, response):
         return self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
 
-    def assertResourceHas(self, response, key):
-        return self.assertTrue(response.json.has_key(key))
-
 class ResourceGET(BaseTest):
     def test_get_resources_list(self):
         response = self.client.get('/resource')
@@ -63,7 +60,7 @@ class ResourcePOST(BaseTest):
 
     def test_allocate_id_for_resource(self):
         response = self.client.create_resource(self.payload)
-        self.assertResourceHas(response, '_id')
+        self.assertIn('_id', response.json)
 
     def test_return_error_if_endpoint_missing(self):
         payload = {
@@ -75,7 +72,7 @@ class ResourcePOST(BaseTest):
 
         response = self.client.create_resource(payload)
         self.assertBadRequest(response)
-        self.assertResourceHas(response, 'endpoint')
+        self.assertIn('endpoint', response.json)
 
     def test_return_error_if_response_missing(self):
         payload = {
@@ -87,7 +84,7 @@ class ResourcePOST(BaseTest):
 
         response = self.client.create_resource(payload)
         self.assertBadRequest(response)
-        self.assertResourceHas(response, 'response')
+        self.assertIn('response', response.json)
 
     def test_return_error_if_duplicate_endpoints_and_methods(self):
         """
@@ -108,7 +105,7 @@ class ResourcePOST(BaseTest):
 
         response = self.client.create_resource(payload)
         self.assertBadRequest(response)
-        self.assertResourceHas(response, 'endpoint')
+        self.assertIn('endpoint', response.json)
 
     def test_return_error_if_methods_are_missing(self):
         payload = {
@@ -118,7 +115,7 @@ class ResourcePOST(BaseTest):
 
         response = self.client.create_resource(payload)
         self.assertBadRequest(response)
-        self.assertResourceHas(response, 'methods')
+        self.assertIn('methods', response.json)
 
     def test_return_error_if_all_fields_missing(self):
         payload = {}
@@ -186,7 +183,7 @@ class ResourcePATCH(BaseTest):
         response = self.client.save_changes(resource_id, resource_to_patch)
 
         self.assertBadRequest(response)
-        self.assertResourceHas(response, 'endpoint')
+        self.assertIn('endpoint',  response.json)
 
     def test_return_error_if_patching_id(self):
         response = self.client.create_resource(self.payload)
