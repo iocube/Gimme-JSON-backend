@@ -3,7 +3,7 @@ from flask import Blueprint, request, Response
 from app.resource.model import ResourceModel
 from app.resource import validators
 from pymongo.errors import DuplicateKeyError
-from app import utility
+from app import decorators
 from app.http_status_codes import HTTP_OK, HTTP_BAD_REQUEST
 
 
@@ -38,14 +38,14 @@ class ErrorResponse(object):
         return self.response == {}
 
 @blueprint.route('/resource', methods=['GET'])
-@utility.crossdomain(methods=['GET'])
-@utility.to_json
+@decorators.crossdomain(methods=['GET'])
+@decorators.to_json
 def get_resources_list():
     return resource_model.get_all_resources()
 
 @blueprint.route('/resource', methods=['POST'])
-@utility.crossdomain(methods=['POST'])
-@utility.to_json
+@decorators.crossdomain(methods=['POST'])
+@decorators.to_json
 def create_new_resource():
     error_response = ErrorResponse()
 
@@ -71,8 +71,8 @@ def create_new_resource():
     return new_resource
 
 @blueprint.route('/resource/<string:resource_id>', methods=['DELETE'])
-@utility.crossdomain()
-@utility.to_json
+@decorators.crossdomain()
+@decorators.to_json
 def delete_resource(resource_id):
     if not validators.is_resource_id_valid(resource_id):
         return {}, HTTP_BAD_REQUEST
@@ -86,8 +86,8 @@ def delete_resource(resource_id):
     return {}, HTTP_BAD_REQUEST
 
 @blueprint.route('/resource/<string:resource_id>', methods=['PATCH'])
-@utility.crossdomain()
-@utility.to_json
+@decorators.crossdomain()
+@decorators.to_json
 def patch_resource(resource_id):
     error_response = ErrorResponse()
 
@@ -126,8 +126,8 @@ def patch_resource(resource_id):
     return patched_resource
 
 @blueprint.route('/resource/<string:resource_id>', methods=['PUT'])
-@utility.crossdomain()
-@utility.to_json
+@decorators.crossdomain()
+@decorators.to_json
 def put_resource(resource_id):
     error_response = ErrorResponse()
 

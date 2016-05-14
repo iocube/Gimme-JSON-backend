@@ -1,6 +1,6 @@
 import os
 from flask import Blueprint, request, Response
-from app import utility
+from app import decorators
 from app.http_status_codes import HTTP_OK
 from settings import settings
 
@@ -8,8 +8,8 @@ from settings import settings
 blueprint = Blueprint('server', __name__)
 
 @blueprint.route('/server', methods=['DELETE'])
-@utility.crossdomain()
-@utility.to_json
+@decorators.crossdomain()
+@decorators.to_json
 def server_reload():
     """
     Flask does not have method to reload server manually except for when

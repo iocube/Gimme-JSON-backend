@@ -1,8 +1,7 @@
 import functools
-from flask import request, Response, current_app, make_response
+from flask import request, Response, current_app
 from app.http_status_codes import HTTP_OK
-from bson import json_util
-
+import util
 
 def crossdomain(origin='*', methods=None, headers=None):
     def decorator(func):
@@ -49,19 +48,14 @@ def to_json(func):
         func_response = func(*args, **kwargs)
 
         if not isinstance(func_response, tuple):
-            return Response(response=jsonify(func_response), mimetype='application/json')
+            return Response(response=util.jsonify(func_response), mimetype='application/json')
 
         unpack_or_none = lambda response=None, status=HTTP_OK, headers=None: (response, status, headers)
         response, status, headers = unpack_or_none(*func_response)
-        jsonfied_response = Response(response=jsonify(response), status=status, mimetype='application/json')
+        jsonfied_response = Response(response=util.jsonify(response), status=status, mimetype='application/json')
 
         if headers:
             jsonfied_response.headers.extend(headers)
 
         return jsonfied_response
     return wrapper
-
-def jsonify(data):
-    if hasattr(data, 'to_json'):
-        return data.to_json()
-    return json_util.dumps(data)
