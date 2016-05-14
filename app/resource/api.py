@@ -39,12 +39,12 @@ class ErrorResponse(object):
     def is_empty(self):
         return self.response == {}
 
-@decorators.crossdomain(methods=['GET'])
+@decorators.crossdomain()
 @decorators.to_json
 def get_resources_list():
     return resource_model.get_all_resources()
 
-@decorators.crossdomain(methods=['POST'])
+@decorators.crossdomain()
 @decorators.to_json
 def create_new_resource():
     error_response = ErrorResponse()
