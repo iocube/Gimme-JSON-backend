@@ -1,7 +1,9 @@
-from resource import resource
-from server import server
+import resource.api
+import server.api
+import os
+
 
 blueprints = [
-        resource.blueprint,
-        server.blueprint
+        resource.api.blueprint,
+        server.api.blueprint
 ]
