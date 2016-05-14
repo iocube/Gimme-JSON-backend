@@ -5,9 +5,6 @@ from app.http_status_codes import HTTP_OK
 from settings import settings
 
 
-blueprint = Blueprint('server', __name__)
-
-@blueprint.route('/server', methods=['DELETE'])
 @decorators.crossdomain()
 @decorators.to_json
 def server_reload():

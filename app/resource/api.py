@@ -7,7 +7,6 @@ from app import decorators
 from app.http_status_codes import HTTP_OK, HTTP_BAD_REQUEST
 
 
-blueprint = Blueprint('resource', __name__)
 resource_model = ResourceModel()
 
 def select_from_request(target, what):
@@ -40,13 +39,11 @@ class ErrorResponse(object):
     def is_empty(self):
         return self.response == {}
 
-@blueprint.route('/resource', methods=['GET'])
 @decorators.crossdomain(methods=['GET'])
 @decorators.to_json
 def get_resources_list():
     return resource_model.get_all_resources()
 
-@blueprint.route('/resource', methods=['POST'])
 @decorators.crossdomain(methods=['POST'])
 @decorators.to_json
 def create_new_resource():
@@ -68,7 +65,7 @@ def create_new_resource():
 
     if not request.json.has_key('response') or request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
         error_response.push('response', 'response field is not valid JSON.')
-        
+
     if not error_response.is_empty():
         return error_response, HTTP_BAD_REQUEST
 
@@ -80,7 +77,6 @@ def create_new_resource():
 
     return new_resource
 
-@blueprint.route('/resource/<string:resource_id>', methods=['DELETE'])
 @decorators.crossdomain()
 @decorators.to_json
 def delete_resource(resource_id):
@@ -95,7 +91,6 @@ def delete_resource(resource_id):
     # such id does not exist, nothing was deleted.
     return {}, HTTP_BAD_REQUEST
 
-@blueprint.route('/resource/<string:resource_id>', methods=['PATCH'])
 @decorators.crossdomain()
 @decorators.to_json
 def patch_resource(resource_id):
@@ -135,7 +130,6 @@ def patch_resource(resource_id):
 
     return patched_resource
 
-@blueprint.route('/resource/<string:resource_id>', methods=['PUT'])
 @decorators.crossdomain()
 @decorators.to_json
 def put_resource(resource_id):

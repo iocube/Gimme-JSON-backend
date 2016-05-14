@@ -1,9 +1,9 @@
-import resource.api
-import server.api
+import resource.routes
+import server.routes
 import os
 
 
 blueprints = [
-        resource.api.blueprint,
-        server.api.blueprint
+        resource.routes.blueprint,
+        server.routes.blueprint
 ]
