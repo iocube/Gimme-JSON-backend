@@ -1,6 +1,5 @@
 import resource.routes
 import server.routes
-import os
 
 
 blueprints = [

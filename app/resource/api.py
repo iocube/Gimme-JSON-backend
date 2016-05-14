@@ -1,10 +1,10 @@
 import json
-from flask import Blueprint, request, Response
+from flask import request
 from app.resource.model import ResourceModel
 from app.resource import validators
 from pymongo.errors import DuplicateKeyError
 from app import decorators
-from app.http_status_codes import HTTP_OK, HTTP_BAD_REQUEST
+from app.http_status_codes import HTTP_BAD_REQUEST
 
 
 resource_model = ResourceModel()

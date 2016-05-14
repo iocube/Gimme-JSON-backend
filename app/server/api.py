@@ -1,7 +1,5 @@
 import os
-from flask import Blueprint, request, Response
 from app import decorators
-from app.http_status_codes import HTTP_OK
 from settings import settings
 
 
