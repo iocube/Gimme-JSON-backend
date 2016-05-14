@@ -1,48 +1,53 @@
-import json
 import unittest
 import pymongo
-from gimmejson import application
 from app import database
 from app.http_status_codes import HTTP_OK, HTTP_BAD_REQUEST
 from settings import settings
+from client import Client
 
-class Client(object):
-    def __init__(self):
-        self.client = application.test_client()
 
-    def get(self, *args, **kwargs):
-        return self._http_call(self.client.get, *args, **kwargs)
+class ResourceClient(Client):
+    """
+    Shortcut methods to work with Resource API.
+    """
+    BASE_URL = '/resource'
 
-    def post(self, *args, **kwargs):
-        return self._http_call(self.client.post, *args, **kwargs)
+    def create_resource(self, payload):
+        return self.post(ResourceClient.BASE_URL, data=payload)
 
-    def put(self, *args, **kwargs):
-        return self._http_call(self.client.put, *args, **kwargs)
+    def delete_resource(self, resource_id):
+        return self.delete(ResourceClient.BASE_URL + '/' + resource_id)
 
-    def patch(self, *args, **kwargs):
-        return self._http_call(self.client.patch, *args, **kwargs)
+    def save_changes(self, resource_id, changes):
+        return self.patch(ResourceClient.BASE_URL + '/' + resource_id, data=changes)
 
-    def delete(self, *args, **kwargs):
-        return self._http_call(self.client.delete, *args, **kwargs)
-
-    def _http_call(self, method_func, *args, **kwargs):
-        if kwargs.has_key('data'):
-            kwargs['data'] = json.dumps(kwargs['data'])
-            kwargs['content_type'] = 'application/json'
-            response = method_func(*args, **kwargs)
-        else:
-            response = method_func(*args, **kwargs)
-        response.json = json.loads(response.get_data())
-        return response
+    def save(self, resource_id, payload):
+        return self.put(ResourceClient.BASE_URL + '/' + resource_id, data=payload)
 
 class BaseTest(unittest.TestCase):
     def setUp(self):
         database.connection.drop_database(settings.MONGODB_NAME)
         database.database[settings.MONGODB_COLLECTION_RESOURCE].create_index([('endpoint', pymongo.ASCENDING), ('methods', pymongo.ASCENDING)], unique=True)
-        self.client = Client()
+        self.client = ResourceClient()
+        self.payload = {
+            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
+            "endpoint": "/api/v1/test",
+            "methods": [
+              "GET"
+            ]
+        }
 
     def tearDown(self):
         pass
+
+    def assertOK(self, response):
+        return self.assertEqual(response.status_code, HTTP_OK)
+
+    def assertBadRequest(self, response):
+        return self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+
+    def assertResourceHas(self, response, key):
+        return self.assertTrue(response.json.has_key(key))
 
 class ResourceGET(BaseTest):
     def test_get_resources_list(self):
@@ -53,18 +58,12 @@ class ResourceGET(BaseTest):
 
 class ResourcePOST(BaseTest):
     def test_create_new_resource(self):
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
-        }
+        response = self.client.create_resource(self.payload)
+        self.assertOK(response)
 
-        response = self.client.post('/resource', data=payload)
-        new_resource = response.json
-        self.assertEqual(response.status_code, HTTP_OK)
-        self.assertTrue(new_resource.has_key('_id'))
+    def test_allocate_id_for_resource(self):
+        response = self.client.create_resource(self.payload)
+        self.assertResourceHas(response, '_id')
 
     def test_return_error_if_endpoint_missing(self):
         payload = {
@@ -74,10 +73,9 @@ class ResourcePOST(BaseTest):
             ]
         }
 
-        response = self.client.post('/resource', data=payload)
-        new_resource = response.json
-        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
-        self.assertTrue(new_resource.has_key('endpoint'))
+        response = self.client.create_resource(payload)
+        self.assertBadRequest(response)
+        self.assertResourceHas(response, 'endpoint')
 
     def test_return_error_if_response_missing(self):
         payload = {
@@ -87,11 +85,9 @@ class ResourcePOST(BaseTest):
             ]
         }
 
-        response = self.client.post('/resource', data=payload)
-        error = response.json
-
-        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
-        self.assertTrue(error.has_key('response'))
+        response = self.client.create_resource(payload)
+        self.assertBadRequest(response)
+        self.assertResourceHas(response, 'response')
 
     def test_return_error_if_duplicate_endpoints_and_methods(self):
         """
@@ -107,14 +103,12 @@ class ResourcePOST(BaseTest):
             ]
         }
 
-        response = self.client.post('/resource', data=payload)
-        self.assertEqual(response.status_code, HTTP_OK)
+        response = self.client.create_resource(payload)
+        self.assertOK(response)
 
-        response = self.client.post('/resource', data=payload)
-        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
-
-        error = response.json
-        self.assertTrue(error.has_key('endpoint'))
+        response = self.client.create_resource(payload)
+        self.assertBadRequest(response)
+        self.assertResourceHas(response, 'endpoint')
 
     def test_return_error_if_methods_are_missing(self):
         payload = {
@@ -122,57 +116,35 @@ class ResourcePOST(BaseTest):
             "endpoint": "/api/v1/test"
         }
 
-        response = self.client.post('/resource', data=payload)
-        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
-
-        error = response.json
-        self.assertTrue(error.has_key('methods'))
+        response = self.client.create_resource(payload)
+        self.assertBadRequest(response)
+        self.assertResourceHas(response, 'methods')
 
     def test_return_error_if_all_fields_missing(self):
         payload = {}
 
-        response = self.client.post('/resource', data=payload)
-        error = response.json
+        response = self.client.create_resource(payload)
+        self.assertBadRequest(response)
 
-        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
-
-        response = self.client.post('/resource', data=None)
-
-        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+        response = self.client.create_resource(None)
+        self.assertBadRequest(response)
 
 class ResourceDELETE(BaseTest):
     def test_delete_resource(self):
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
-        }
+        response = self.client.create_resource(self.payload)
+        new_resource_id = response.json['_id']['$oid']
 
-        response = self.client.post('/resource', data=payload)
-        new_resource = response.json
-        new_resource_id = new_resource['_id']['$oid']
-        response = self.client.delete('/resource/' + new_resource_id)
-        self.assertEqual(response.status_code, HTTP_OK)
+        response = self.client.delete_resource(new_resource_id)
+        self.assertOK(response)
 
     def test_delete_unexistent_resource(self):
-        response = self.client.delete('/resource/' + '571b7cfdeceefb4a395ef433')
-        self.assertTrue(response.status_code, HTTP_BAD_REQUEST)
+        response = self.client.delete_resource('571b7cfdeceefb4a395ef433')
+        self.assertBadRequest(response)
 
 class ResourcePATCH(BaseTest):
     def test_edit_all_fields(self):
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
-        }
-
-        response = self.client.post('/resource', data=payload)
-        new_resource = response.json
-        resource_id = new_resource['_id']['$oid']
+        response = self.client.create_resource(self.payload)
+        resource_id = response.json['_id']['$oid']
 
         new_payload = {
             "response": "{\"name\": \"Alice\", \"city\": \"Tel-Aviv\"}",
@@ -182,11 +154,12 @@ class ResourcePATCH(BaseTest):
             ]
         }
 
-        response = self.client.patch('/resource/' + resource_id, data=new_payload)
+        response = self.client.save_changes(resource_id, new_payload)
+
         patched_resource = response.json
         new_payload['_id'] = patched_resource['_id']
 
-        self.assertEqual(response.status_code, HTTP_OK)
+        self.assertOK(response)
         self.assertEqual(patched_resource, new_payload)
 
     def test_return_error_if_duplicate_endpoints_and_methods(self):
@@ -194,14 +167,6 @@ class ResourcePATCH(BaseTest):
         should return error if such endpoint and methods already exist
         when trying to modify existing endpoint
         """
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
-        }
-
         payload_second = {
             "response": "{\"name\": \"Bob\"}",
             "endpoint": "/api/v1/people",
@@ -210,30 +175,21 @@ class ResourcePATCH(BaseTest):
             ]
         }
 
-        self.client.post('/resource', data=payload)
-        response = self.client.post('/resource', data=payload_second)
+        self.client.create_resource(self.payload)
+        response = self.client.create_resource(payload_second)
 
         resource_to_patch = response.json
         resource_id = resource_to_patch['_id']['$oid']
 
         resource_to_patch['endpoint'] = '/api/v1/test'
 
-        response = self.client.patch('/resource/' + resource_id, data=resource_to_patch)
-        error = response.json
+        response = self.client.save_changes(resource_id, resource_to_patch)
 
-        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
-        self.assertTrue(error.has_key('endpoint'))
+        self.assertBadRequest(response)
+        self.assertResourceHas(response, 'endpoint')
 
     def test_return_error_if_patching_id(self):
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
-        }
-
-        response = self.client.post('/resource', data=payload)
+        response = self.client.create_resource(self.payload)
         new_resource = response.json
         resource_id = new_resource['_id']['$oid']
 
@@ -241,55 +197,29 @@ class ResourcePATCH(BaseTest):
             '_id': {'$oid': '571b7cfdeceefb4a395ef433'}
         }
 
-        response = self.client.patch('/resource/' + resource_id, data=patch_payload)
+        response = self.client.save_changes(resource_id, patch_payload)
 
-        self.assertTrue(response.status_code, HTTP_BAD_REQUEST)
+        self.assertBadRequest(response)
 
 class ResourcePUT(BaseTest):
     def test_save_changes(self):
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
-        }
-
-        response = self.client.post('/resource', data=payload)
+        response = self.client.create_resource(self.payload)
         new_resource_id = response.json['_id']['$oid']
 
-        payload['methods'] = ['POST']
-        response = self.client.put('/resource/' + new_resource_id, data=payload)
-        updated_resource = response.json
-        self.assertEqual(updated_resource['methods'], ['POST'])
+        self.payload['methods'] = ['POST']
+        response = self.client.save(new_resource_id, self.payload)
+        self.assertEqual(response.json['methods'], ['POST'])
 
     def test_ignore_id_on_put(self):
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
-        }
+        response = self.client.create_resource(self.payload)
+        self.payload['methods'] = ['POST']
+        self.payload['_id'] = response.json['_id']
 
-        response = self.client.post('/resource', data=payload)
-        new_resource_id = response.json
-        payload['methods'] = ['POST']
-        payload['_id'] = new_resource_id
+        response = self.client.save(response.json['_id']['$oid'], self.payload)
 
-        response = self.client.put('/resource/' + new_resource_id['_id']['$oid'], data=payload)
-
-        self.assertEqual(response.status_code, HTTP_OK)
+        self.assertOK(response)
 
     def test_return_error_if_duplicate_endpoint_and_methods(self):
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
-        }
-
         another_payload = {
             "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
             "endpoint": "/api/v1/test",
@@ -298,81 +228,45 @@ class ResourcePUT(BaseTest):
             ]
         }
 
-        response = self.client.post('/resource', data=payload)
+        response = self.client.create_resource(self.payload)
         new_resource_id = response.json['_id']['$oid']
-        self.assertEqual(response.status_code, HTTP_OK)
+        self.assertOK(response)
 
-        response = self.client.post('/resource', data=another_payload)
+        response = self.client.create_resource(another_payload)
         new_resource_id = response.json['_id']['$oid']
-        self.assertEqual(response.status_code, HTTP_OK)
+        self.assertOK(response)
 
         another_payload['methods'] = ['GET']
-        response = self.client.put('/resource/' + new_resource_id, data=another_payload)
-        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+        response = self.client.save(new_resource_id, another_payload)
+        self.assertBadRequest(response)
 
     def test_return_error_if_all_fields_missing(self):
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
-        }
-
-        response = self.client.post('/resource', data=payload)
-        new_resource_id = response.json['_id']['$oid']
+        response = self.client.create_resource(self.payload)
 
         empty_payload = {}
-        response = self.client.put('/resource/' + new_resource_id, data=empty_payload)
-        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+        response = self.client.save(response.json['_id']['$oid'], empty_payload)
+        self.assertBadRequest(response)
 
     def test_return_error_if_response_missing(self):
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
-        }
+        response = self.client.create_resource(self.payload)
+        del self.payload['response']
 
-        response = self.client.post('/resource', data=payload)
-        new_resource_id = response.json['_id']['$oid']
-
-        del payload['response']
-        response = self.client.put('/resource/' + new_resource_id, data=payload)
-        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+        response = self.client.save(response.json['_id']['$oid'], self.payload)
+        self.assertBadRequest(response)
 
     def test_return_error_if_methods_missing(self):
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
-        }
+        response = self.client.create_resource(self.payload)
+        del self.payload['methods']
 
-        response = self.client.post('/resource', data=payload)
-        new_resource_id = response.json['_id']['$oid']
-
-        del payload['methods']
-        response = self.client.put('/resource/' + new_resource_id, data=payload)
-        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+        response = self.client.save(response.json['_id']['$oid'], self.payload)
+        self.assertBadRequest(response)
 
     def test_return_error_if_endpoint_missing(self):
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
-        }
+        response = self.client.create_resource(self.payload)
+        del self.payload['endpoint']
 
-        response = self.client.post('/resource', data=payload)
-        new_resource_id = response.json['_id']['$oid']
-
-        del payload['endpoint']
-        response = self.client.put('/resource/' + new_resource_id, data=payload)
-        self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+        response = self.client.save(response.json['_id']['$oid'], self.payload)
+        self.assertBadRequest(response)
 
 if __name__ == '__main__':
     unittest.main()
