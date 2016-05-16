@@ -7,40 +7,11 @@ from app import decorators
 from app.http_status_codes import HTTP_BAD_REQUEST
 from bson.objectid import ObjectId
 
+
 resource_model = ResourceModel()
-
-def select_from_request(target, what):
-    properties = {key: val for key, val in target.iteritems() if key in what}
-    return properties
-
-def which_fields_missing(request, fields):
-    if not request:
-        return fields
-
-    missing_fields = []
-    for prop in fields:
-        if not request.has_key(prop):
-            missing_fields.append(prop)
-    return missing_fields
 
 def is_resource_id_valid(resource_id):
     return ObjectId.is_valid(resource_id)
-
-class ErrorResponse(object):
-    def __init__(self):
-        self.response = {}
-
-    def push(self, field, error):
-        if self.response.has_key(field):
-            self.response[field].append(error)
-        else:
-            self.response[field] = [error]
-
-    def to_json(self):
-        return json.dumps(self.response)
-
-    def is_empty(self):
-        return self.response == {}
 
 @decorators.crossdomain()
 @decorators.to_json
