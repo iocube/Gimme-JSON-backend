@@ -1,11 +1,11 @@
 import json
 from flask import request
 from app.resource.model import ResourceModel
-from app.resource import validators
+from app.resource import serializers
 from pymongo.errors import DuplicateKeyError
 from app import decorators
 from app.http_status_codes import HTTP_BAD_REQUEST
-
+from bson.objectid import ObjectId
 
 resource_model = ResourceModel()
 
@@ -22,6 +22,9 @@ def which_fields_missing(request, fields):
         if not request.has_key(prop):
             missing_fields.append(prop)
     return missing_fields
+
+def is_resource_id_valid(resource_id):
+    return ObjectId.is_valid(resource_id)
 
 class ErrorResponse(object):
     def __init__(self):
@@ -47,40 +50,27 @@ def get_resources_list():
 @decorators.crossdomain()
 @decorators.to_json
 def create_new_resource():
-    error_response = ErrorResponse()
-
     if not isinstance(request.json, dict) or len(request.json.keys()) == 0:
-        error_response.push('general', 'resource should contain \'endpoint\', \'methods\' and \'response\' fields')
-        return error_response, HTTP_BAD_REQUEST
+        error_missing_fields = {'general': 'resource should contain \'endpoint\', \'methods\' and \'response\' fields'}
+        return error_missing_fields, HTTP_BAD_REQUEST
 
-    missing_fields = which_fields_missing(request.json, ['endpoint', 'methods', 'response'])
-    for field in missing_fields:
-        error_response.push(field, '{field} field is required'.format(field=field))
-
-    if not request.json.has_key('endpoint') or request.json.has_key('endpoint') and not validators.is_endpoint_field_valid(request.json['endpoint']):
-        error_response.push('endpoint', 'endpoint should contain valid characters and no spaces.')
-
-    if not request.json.has_key('methods') or request.json.has_key('methods') and not validators.is_methods_field_valid(request.json['methods']):
-        error_response.push('methods', 'methods field should contain list of valid HTTP methods.')
-
-    if not request.json.has_key('response') or request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
-        error_response.push('response', 'response field is not valid JSON.')
-
-    if not error_response.is_empty():
-        return error_response, HTTP_BAD_REQUEST
+    data, error = serializers.Resource().load(request.json)
+    if error:
+        return error, HTTP_BAD_REQUEST
 
     try:
         new_resource = resource_model.create(request.json['endpoint'], request.json['methods'], request.json['response'])
     except DuplicateKeyError:
-        error_response.push('endpoint', 'Each endpoint should have unique methods.')
-        return error_response, HTTP_BAD_REQUEST
+        error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
+        return error_duplicate_values, HTTP_BAD_REQUEST
 
     return new_resource
 
 @decorators.crossdomain()
 @decorators.to_json
 def delete_resource(resource_id):
-    if not validators.is_resource_id_valid(resource_id):
+
+    if not is_resource_id_valid(resource_id):
         return {}, HTTP_BAD_REQUEST
 
     deleted = resource_model.delete(resource_id)
@@ -94,73 +84,50 @@ def delete_resource(resource_id):
 @decorators.crossdomain()
 @decorators.to_json
 def patch_resource(resource_id):
-    error_response = ErrorResponse()
-
-    if not validators.is_resource_id_valid(resource_id):
+    if not is_resource_id_valid(resource_id):
         return {}, HTTP_BAD_REQUEST
 
     if not isinstance(request.json, dict) or len(request.json.keys()) == 0:
-        error_response.push('general', 'invalid request. nothing to change.')
-        return error_response, HTTP_BAD_REQUEST
+        error_invalid_payload = {'general': 'Invalid payload.'}
+        return error_invalid_payload, HTTP_BAD_REQUEST
 
-    updated_fields = select_from_request(request.json, ['endpoint', 'methods', 'response'])
-
-    # if no fields to update return error
-    if not updated_fields:
-        error_response.push('general', 'nothing to update')
-        return error_response, HTTP_BAD_REQUEST
-
-    if request.json.has_key('endpoint') and not validators.is_endpoint_field_valid(request.json['endpoint']):
-        error_response.push('endpoint', 'endpoint should contain valid characters and no spaces.')
-
-    if request.json.has_key('methods') and not validators.is_methods_field_valid(request.json['methods']):
-        error_response.push('methods', 'methods field should contain list of valid HTTP methods.')
-
-    if request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
-        error_response.push('response', 'response field is not valid JSON.')
-
-    if not error_response.is_empty():
-        return error_response, HTTP_BAD_REQUEST
+    fields_to_update, error = serializers.PartialResource().load(request.json)
+    if error:
+        return error, HTTP_BAD_REQUEST
+    elif not fields_to_update:
+        error_nothing_to_update = {'general': 'Nothing to update.'}
+        return error_nothing_to_update, HTTP_BAD_REQUEST
 
     try:
-        patched_resource = resource_model.patch(resource_id, updated_fields)
+        patched_resource = resource_model.patch(resource_id, fields_to_update)
     except DuplicateKeyError:
-        error_response.push('endpoint', 'Each endpoint should have unique methods.')
-        return error_response, HTTP_BAD_REQUEST
+        error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
+        return error_duplicate_values, HTTP_BAD_REQUEST
 
     return patched_resource
 
 @decorators.crossdomain()
 @decorators.to_json
 def put_resource(resource_id):
-    error_response = ErrorResponse()
-
-    if not validators.is_resource_id_valid(resource_id):
+    if not is_resource_id_valid(resource_id):
         return {}, HTTP_BAD_REQUEST
 
     if not isinstance(request.json, dict) or len(request.json.keys()) == 0:
-        error_response.push('general', 'resource should contain \'endpoint\', \'methods\' and \'response\' fields')
-        return error_response, HTTP_BAD_REQUEST
+        error_missing_fields = {'general': 'resource should contain \'endpoint\', \'methods\' and \'response\' fields'}
+        return error_missing_fields, HTTP_BAD_REQUEST
 
-    if not request.json.has_key('endpoint') or request.json.has_key('endpoint') and not validators.is_endpoint_field_valid(request.json['endpoint']):
-        error_response.push('endpoint', 'endpoint should contain valid characters and no spaces.')
+    updated_resource, error = serializers.Resource().load(request.json)
 
-    if not request.json.has_key('methods') or request.json.has_key('methods') and not validators.is_methods_field_valid(request.json['methods']):
-        error_response.push('methods', 'methods field should contain list of valid HTTP methods.')
-
-    if not request.json.has_key('response') or request.json.has_key('response') and not validators.is_response_field_valid(request.json['response']):
-        error_response.push('response', 'response field is not valid JSON.')
-
-    if not error_response.is_empty():
-        return error_response, HTTP_BAD_REQUEST
-
-    if request.json.has_key('_id'):
-        del request.json['_id']
+    if error:
+        return error, HTTP_BAD_REQUEST
+    elif not updated_resource:
+        error_nothing_to_update = {'general': 'Nothing to update.'}
+        return error_nothing_to_update, HTTP_BAD_REQUEST
 
     try:
-        updated_resource = resource_model.replace(resource_id, request.json)
+        updated_resource = resource_model.replace(resource_id, updated_resource)
     except DuplicateKeyError:
-        error_response.push('endpoint', 'Each endpoint should have unique methods.')
-        return error_response, HTTP_BAD_REQUEST
+        error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
+        return error_duplicate_values, HTTP_BAD_REQUEST
 
     return updated_resource
