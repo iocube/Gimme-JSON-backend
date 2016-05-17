@@ -3,6 +3,7 @@ from flask import request, Response, current_app
 from app.http_status_codes import HTTP_OK
 import util
 
+
 def crossdomain(origin='*', methods=None, headers=None):
     def decorator(func):
         @functools.wraps(func)
@@ -10,6 +11,8 @@ def crossdomain(origin='*', methods=None, headers=None):
             default_options_response = current_app.make_default_options_response()
 
             if not methods:
+                # NOTE: default_options_response might not have 'allow' header
+                # for example, when there is an error handler on the application level (not on blueprint).
                 allowed_methods = default_options_response.headers['allow'].split(', ')
             else:
                 allowed_methods = ', '.join(sorted(method.upper() for method in methods))
@@ -29,8 +32,8 @@ def crossdomain(origin='*', methods=None, headers=None):
                 default_options_response.headers.extend(crossdomain_headers)
                 return default_options_response
 
-            # TODO: func might raise BadRequest if request is invalid, this error not catched so
-            # the code stops here and headers aren't set for CORS.
+            # NOTE: func might raise an exception (i.e BadRequest), currently this error is not catched so
+            # execution stops here before headers are set for CORS.
             crossdomain_response = func(*args, **kwargs)
             crossdomain_response.headers.extend(crossdomain_headers)
 

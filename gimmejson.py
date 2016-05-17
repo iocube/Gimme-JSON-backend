@@ -4,6 +4,8 @@ from flask import Response, request
 from app import blueprints, utility
 from app.resource.model import ResourceModel
 from settings import settings
+from app import decorators
+from app.http_status_codes import HTTP_INTERNAL_SERVER_ERROR, HTTP_NOT_FOUND
 
 
 def assign(source, destination):
@@ -39,3 +41,15 @@ application.config.from_object(settings)
 
 register_many_blueprints(application, blueprints)
 register_resources(application)
+
+@application.errorhandler(HTTP_INTERNAL_SERVER_ERROR)
+@decorators.crossdomain(methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
+@decorators.to_json
+def handle_internal_server_error(error):
+    return {'status': HTTP_INTERNAL_SERVER_ERROR}, HTTP_INTERNAL_SERVER_ERROR
+
+@application.errorhandler(HTTP_NOT_FOUND)
+@decorators.crossdomain(methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
+@decorators.to_json
+def handle_not_found(error):
+    return {'status': HTTP_NOT_FOUND}, HTTP_NOT_FOUND
