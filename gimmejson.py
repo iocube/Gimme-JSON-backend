@@ -5,7 +5,7 @@ from app import blueprints, utility
 from app.resource.model import ResourceModel
 from settings import settings
 from app import decorators
-from app.http_status_codes import HTTP_INTERNAL_SERVER_ERROR, HTTP_NOT_FOUND
+from app.http_status_codes import *
 from app.exceptions import InvalidAPIUsage
 
 
@@ -43,17 +43,35 @@ application.config.from_object(settings)
 register_many_blueprints(application, blueprints)
 register_resources(application)
 
+@application.errorhandler(HTTP_NOT_FOUND)
 @decorators.crossdomain(methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
 @decorators.to_json
-def all_exceptions_handler(error):
+def handle_not_found(error):
     return {'status': error.code}, error.code
 
-from werkzeug import HTTP_STATUS_CODES
-for code in HTTP_STATUS_CODES:
-    application.register_error_handler(code, all_exceptions_handler)
+@application.errorhandler(HTTP_METHOD_NOT_ALLOWED)
+@decorators.crossdomain()
+@decorators.to_json
+def handle_method_not_allowed(error):
+    status = error.code
+    headers = {'Allow': ', '.join(error.valid_methods)}
+    response = {'status': status}
+    return response, status, headers
 
 @application.errorhandler(InvalidAPIUsage)
 @decorators.crossdomain()
 @decorators.to_json
 def handle_invalid_api_usage(error):
-    return error.message, error.status_code
+    return error.message, error.code
+
+@application.errorhandler(HTTP_BAD_REQUEST)
+@decorators.crossdomain()
+@decorators.to_json
+def handle_bad_request(error):
+    return {'status': error.code}, error.code
+
+@application.errorhandler(HTTP_INTERNAL_SERVER_ERROR)
+@decorators.crossdomain()
+@decorators.to_json
+def handle_internal_server_error(error):
+    return {'status': error.code}, error.code

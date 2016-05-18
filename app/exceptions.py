@@ -2,8 +2,8 @@ from flask import abort
 from app.http_status_codes import HTTP_NOT_FOUND, HTTP_BAD_REQUEST
 
 
-class InvalidAPIUsage(Exception):
-    status_code = 400
+class BaseHTTPException(Exception):
+    code = None
 
     def __init__(self, message, status_code=None):
         Exception.__init__(self)
@@ -12,8 +12,11 @@ class InvalidAPIUsage(Exception):
             self.status_code = status_code
         self.message['status'] = self.status_code
 
-def raise_bad_request(msg={}):
-    raise InvalidAPIUsage(msg, HTTP_BAD_REQUEST)
+class InvalidAPIUsage(BaseHTTPException):
+    code = 400
+
+def raise_invalid_api_usage(message={}):
+    raise InvalidAPIUsage(message, HTTP_BAD_REQUEST)
 
 def raise_not_found():
     abort(HTTP_NOT_FOUND)

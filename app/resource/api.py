@@ -4,7 +4,7 @@ from app.resource.model import ResourceModel
 from app.resource import serializers
 from pymongo.errors import DuplicateKeyError
 from app import decorators
-from app.exceptions import raise_bad_request, raise_not_found
+from app.exceptions import raise_invalid_api_usage, raise_not_found
 from bson.objectid import ObjectId
 
 
@@ -22,17 +22,17 @@ def get_resources_list():
 @decorators.to_json
 def create_new_resource():
     error_missing_fields = {'error': 'resource should contain \'endpoint\', \'methods\' and \'response\' fields'}
-    incoming_json = request.get_json(silent=True) or raise_bad_request(error_missing_fields)
+    incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_missing_fields)
 
     data, error = serializers.Resource().load(incoming_json)
     if error:
-        raise_bad_request(error)
+        raise_invalid_api_usage(error)
 
     try:
         new_resource = resource_model.create(request.json['endpoint'], request.json['methods'], request.json['response'])
     except DuplicateKeyError:
         error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
-        raise_bad_request(error_duplicate_values)
+        raise_invalid_api_usage(error_duplicate_values)
 
     return new_resource
 
@@ -57,20 +57,20 @@ def patch_resource(resource_id):
         raise_not_found()
 
     error_missing_fields = {'error': 'expecting at least one field.'}
-    incoming_json = request.get_json(silent=True) or raise_bad_request(error_missing_fields)
+    incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_missing_fields)
 
     fields_to_update, error = serializers.PartialResource().load(incoming_json)
     if error:
-        raise_bad_request(error)
+        raise_invalid_api_usage(error)
     elif not fields_to_update:
         error_nothing_to_update = {'error': 'Nothing to update.'}
-        raise_bad_request(error_nothing_to_update)
+        raise_invalid_api_usage(error_nothing_to_update)
 
     try:
         patched_resource = resource_model.patch(resource_id, fields_to_update)
     except DuplicateKeyError:
         error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
-        raise_bad_request(error_duplicate_values)
+        raise_invalid_api_usage(error_duplicate_values)
 
     return patched_resource
 
@@ -81,20 +81,20 @@ def put_resource(resource_id):
         raise_not_found()
 
     error_missing_fields = {'error': 'resource should contain \'endpoint\', \'methods\' and \'response\' fields'}
-    incoming_json = request.get_json(silent=True) or raise_bad_request(error_missing_fields)
+    incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_missing_fields)
 
     updated_resource, error = serializers.Resource().load(incoming_json)
 
     if error:
-        raise_bad_request(error)
+        raise_invalid_api_usage(error)
     elif not updated_resource:
         error_nothing_to_update = {'error': 'Nothing to update.'}
-        raise_bad_request(error_nothing_to_update)
+        raise_invalid_api_usage(error_nothing_to_update)
 
     try:
         updated_resource = resource_model.replace(resource_id, updated_resource)
     except DuplicateKeyError:
         error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
-        raise_bad_request(error_duplicate_values)
+        raise_invalid_api_usage(error_duplicate_values)
 
     return updated_resource
