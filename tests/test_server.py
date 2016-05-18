@@ -9,7 +9,7 @@ from settings import settings
 
 
 class ServerClient(Client):
-    BASE_URL = '/server'
+    BASE_URL = '/server/'
 
     def restart_server(self):
         return self.client.delete(ServerClient.BASE_URL)

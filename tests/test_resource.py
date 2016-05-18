@@ -10,19 +10,19 @@ class ResourceClient(Client):
     """
     Shortcut methods to work with Resource API.
     """
-    BASE_URL = '/resource'
+    BASE_URL = '/resource/'
 
     def create_resource(self, payload):
         return self.post(ResourceClient.BASE_URL, data=payload)
 
     def delete_resource(self, resource_id):
-        return self.delete(ResourceClient.BASE_URL + '/' + resource_id)
+        return self.delete(ResourceClient.BASE_URL + resource_id + '/')
 
     def save_changes(self, resource_id, changes):
-        return self.patch(ResourceClient.BASE_URL + '/' + resource_id, data=changes)
+        return self.patch(ResourceClient.BASE_URL + resource_id + '/', data=changes)
 
     def save(self, resource_id, payload):
-        return self.put(ResourceClient.BASE_URL + '/' + resource_id, data=payload)
+        return self.put(ResourceClient.BASE_URL + resource_id + '/', data=payload)
 
 class BaseTest(unittest.TestCase):
     def setUp(self):
@@ -51,7 +51,7 @@ class BaseTest(unittest.TestCase):
 
 class ResourceGET(BaseTest):
     def test_get_resources_list(self):
-        response = self.client.get('/resource')
+        response = self.client.get('/resource/')
         all_resources = response.json
 
         self.assertEqual(response.status_code, HTTP_OK)
