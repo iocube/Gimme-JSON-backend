@@ -43,17 +43,14 @@ application.config.from_object(settings)
 register_many_blueprints(application, blueprints)
 register_resources(application)
 
-@application.errorhandler(HTTP_INTERNAL_SERVER_ERROR)
 @decorators.crossdomain(methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
 @decorators.to_json
-def handle_internal_server_error(error):
-    return {'status': HTTP_INTERNAL_SERVER_ERROR}, HTTP_INTERNAL_SERVER_ERROR
+def all_exceptions_handler(error):
+    return {'status': error.code}, error.code
 
-@application.errorhandler(HTTP_NOT_FOUND)
-@decorators.crossdomain(methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
-@decorators.to_json
-def handle_not_found(error):
-    return {'status': HTTP_NOT_FOUND}, HTTP_NOT_FOUND
+from werkzeug import HTTP_STATUS_CODES
+for code in HTTP_STATUS_CODES:
+    application.register_error_handler(code, all_exceptions_handler)
 
 @application.errorhandler(InvalidAPIUsage)
 @decorators.crossdomain()
