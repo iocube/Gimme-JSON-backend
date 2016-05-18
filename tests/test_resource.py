@@ -1,7 +1,7 @@
 import unittest
 import pymongo
 from app import database
-from app.http_status_codes import HTTP_OK, HTTP_BAD_REQUEST
+from app.http_status_codes import *
 from settings import settings
 from client import Client
 
@@ -45,6 +45,9 @@ class BaseTest(unittest.TestCase):
 
     def assertBadRequest(self, response):
         return self.assertEqual(response.status_code, HTTP_BAD_REQUEST)
+
+    def assertNotFound(self, response):
+        return self.assertEqual(response.status_code, HTTP_NOT_FOUND)
 
 class ResourceGET(BaseTest):
     def test_get_resources_list(self):
@@ -136,7 +139,7 @@ class ResourceDELETE(BaseTest):
 
     def test_delete_unexistent_resource(self):
         response = self.client.delete_resource('571b7cfdeceefb4a395ef433')
-        self.assertBadRequest(response)
+        self.assertNotFound(response)
 
 class ResourcePATCH(BaseTest):
     def test_edit_all_fields(self):

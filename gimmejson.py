@@ -6,6 +6,7 @@ from app.resource.model import ResourceModel
 from settings import settings
 from app import decorators
 from app.http_status_codes import HTTP_INTERNAL_SERVER_ERROR, HTTP_NOT_FOUND
+from app.exceptions import InvalidAPIUsage
 
 
 def assign(source, destination):
@@ -53,3 +54,9 @@ def handle_internal_server_error(error):
 @decorators.to_json
 def handle_not_found(error):
     return {'status': HTTP_NOT_FOUND}, HTTP_NOT_FOUND
+
+@application.errorhandler(InvalidAPIUsage)
+@decorators.crossdomain()
+@decorators.to_json
+def handle_invalid_api_usage(error):
+    return error.message, error.status_code
