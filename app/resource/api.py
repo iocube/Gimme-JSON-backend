@@ -15,12 +15,12 @@ def is_resource_id_valid(resource_id):
 
 @decorators.crossdomain()
 @decorators.to_json
-def get_resources_list():
+def get_list():
     return resource_model.get_all_resources()
 
 @decorators.crossdomain()
 @decorators.to_json
-def create_new_resource():
+def create():
     error_missing_fields = {'error': 'resource should contain \'endpoint\', \'methods\' and \'response\' fields'}
     incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_missing_fields)
 
@@ -38,7 +38,7 @@ def create_new_resource():
 
 @decorators.crossdomain()
 @decorators.to_json
-def delete_resource(resource_id):
+def delete(resource_id):
     if not is_resource_id_valid(resource_id):
         raise_not_found()
 
@@ -52,7 +52,7 @@ def delete_resource(resource_id):
 
 @decorators.crossdomain()
 @decorators.to_json
-def patch_resource(resource_id):
+def partial_update(resource_id):
     if not is_resource_id_valid(resource_id):
         raise_not_found()
 
@@ -76,7 +76,7 @@ def patch_resource(resource_id):
 
 @decorators.crossdomain()
 @decorators.to_json
-def put_resource(resource_id):
+def save(resource_id):
     if not is_resource_id_valid(resource_id):
         raise_not_found()
 

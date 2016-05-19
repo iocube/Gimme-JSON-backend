@@ -5,7 +5,7 @@ from settings import settings
 
 @decorators.crossdomain()
 @decorators.to_json
-def server_reload():
+def reload():
     """
     Flask does not have method to reload server manually except for when
     source code of one of the modules is changed.
