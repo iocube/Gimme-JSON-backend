@@ -28,7 +28,7 @@ def register_many_blueprints(app, blueprints):
 def register_resources(app):
     # register all resources
     resource_model = ResourceModel()
-    all_resources = resource_model.get_all_resources().original()
+    all_resources = resource_model.get_all_resources().raw()
     for resource in all_resources:
         app.add_url_rule(
             rule=resource['endpoint'],

@@ -16,7 +16,9 @@ def is_resource_id_valid(resource_id):
 @decorators.crossdomain()
 @decorators.to_json
 def get_list():
-    return resource_model.get_all_resources()
+    resource_list = resource_model.get_all_resources().raw()
+    serialized = serializers.Resource(many=True).dump(resource_list)
+    return serialized.data
 
 @decorators.crossdomain()
 @decorators.to_json
@@ -34,7 +36,8 @@ def create():
         error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
         raise_invalid_api_usage(error_duplicate_values)
 
-    return new_resource
+    serialized = serializers.Resource().dump(new_resource.raw())
+    return serialized.data
 
 @decorators.crossdomain()
 @decorators.to_json
@@ -59,7 +62,7 @@ def partial_update(resource_id):
     error_missing_fields = {'error': 'expecting at least one field.'}
     incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_missing_fields)
 
-    fields_to_update, error = serializers.PartialResource().load(incoming_json)
+    fields_to_update, error = serializers.PartialResource(exclude=('_id',)).load(incoming_json)
     if error:
         raise_invalid_api_usage(error)
     elif not fields_to_update:
@@ -72,7 +75,8 @@ def partial_update(resource_id):
         error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
         raise_invalid_api_usage(error_duplicate_values)
 
-    return patched_resource
+    serialized = serializers.PartialResource().dump(patched_resource.raw())
+    return serialized.data
 
 @decorators.crossdomain()
 @decorators.to_json
@@ -83,7 +87,7 @@ def save(resource_id):
     error_missing_fields = {'error': 'resource should contain \'endpoint\', \'methods\' and \'response\' fields'}
     incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_missing_fields)
 
-    updated_resource, error = serializers.Resource().load(incoming_json)
+    updated_resource, error = serializers.Resource(exclude=('_id',)).load(incoming_json)
 
     if error:
         raise_invalid_api_usage(error)
@@ -97,4 +101,5 @@ def save(resource_id):
         error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
         raise_invalid_api_usage(error_duplicate_values)
 
-    return updated_resource
+    serialized = serializers.Resource().dump(updated_resource.raw())
+    return serialized.data

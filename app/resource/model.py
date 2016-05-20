@@ -14,7 +14,7 @@ class ModelResult(object):
             return json_util.dumps(self.result.inserted_id)
         return json_util.dumps(self.result)
 
-    def original(self):
+    def raw(self):
         return self.result
 
 class ResourceModel(object):

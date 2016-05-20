@@ -132,7 +132,7 @@ class ResourcePOST(BaseTest):
 class ResourceDELETE(BaseTest):
     def test_delete_resource(self):
         response = self.client.create_resource(self.payload)
-        new_resource_id = response.json['_id']['$oid']
+        new_resource_id = response.json['_id']
 
         response = self.client.delete_resource(new_resource_id)
         self.assertOK(response)
@@ -144,7 +144,7 @@ class ResourceDELETE(BaseTest):
 class ResourcePATCH(BaseTest):
     def test_edit_all_fields(self):
         response = self.client.create_resource(self.payload)
-        resource_id = response.json['_id']['$oid']
+        resource_id = response.json['_id']
 
         new_payload = {
             "response": "{\"name\": \"Alice\", \"city\": \"Tel-Aviv\"}",
@@ -179,7 +179,7 @@ class ResourcePATCH(BaseTest):
         response = self.client.create_resource(payload_second)
 
         resource_to_patch = response.json
-        resource_id = resource_to_patch['_id']['$oid']
+        resource_id = resource_to_patch['_id']
 
         resource_to_patch['endpoint'] = '/api/v1/test'
 
@@ -191,7 +191,7 @@ class ResourcePATCH(BaseTest):
     def test_return_error_if_patching_id(self):
         response = self.client.create_resource(self.payload)
         new_resource = response.json
-        resource_id = new_resource['_id']['$oid']
+        resource_id = new_resource['_id']
 
         patch_payload = {
             '_id': {'$oid': '571b7cfdeceefb4a395ef433'}
@@ -204,7 +204,7 @@ class ResourcePATCH(BaseTest):
 class ResourcePUT(BaseTest):
     def test_save_changes(self):
         response = self.client.create_resource(self.payload)
-        new_resource_id = response.json['_id']['$oid']
+        new_resource_id = response.json['_id']
 
         self.payload['methods'] = ['POST']
         response = self.client.save(new_resource_id, self.payload)
@@ -215,7 +215,7 @@ class ResourcePUT(BaseTest):
         self.payload['methods'] = ['POST']
         self.payload['_id'] = response.json['_id']
 
-        response = self.client.save(response.json['_id']['$oid'], self.payload)
+        response = self.client.save(response.json['_id'], self.payload)
 
         self.assertOK(response)
 
@@ -229,11 +229,11 @@ class ResourcePUT(BaseTest):
         }
 
         response = self.client.create_resource(self.payload)
-        new_resource_id = response.json['_id']['$oid']
+        new_resource_id = response.json['_id']
         self.assertOK(response)
 
         response = self.client.create_resource(another_payload)
-        new_resource_id = response.json['_id']['$oid']
+        new_resource_id = response.json['_id']
         self.assertOK(response)
 
         another_payload['methods'] = ['GET']
@@ -244,28 +244,28 @@ class ResourcePUT(BaseTest):
         response = self.client.create_resource(self.payload)
 
         empty_payload = {}
-        response = self.client.save(response.json['_id']['$oid'], empty_payload)
+        response = self.client.save(response.json['_id'], empty_payload)
         self.assertBadRequest(response)
 
     def test_return_error_if_response_missing(self):
         response = self.client.create_resource(self.payload)
         del self.payload['response']
 
-        response = self.client.save(response.json['_id']['$oid'], self.payload)
+        response = self.client.save(response.json['_id'], self.payload)
         self.assertBadRequest(response)
 
     def test_return_error_if_methods_missing(self):
         response = self.client.create_resource(self.payload)
         del self.payload['methods']
 
-        response = self.client.save(response.json['_id']['$oid'], self.payload)
+        response = self.client.save(response.json['_id'], self.payload)
         self.assertBadRequest(response)
 
     def test_return_error_if_endpoint_missing(self):
         response = self.client.create_resource(self.payload)
         del self.payload['endpoint']
 
-        response = self.client.save(response.json['_id']['$oid'], self.payload)
+        response = self.client.save(response.json['_id'], self.payload)
         self.assertBadRequest(response)
 
 if __name__ == '__main__':
