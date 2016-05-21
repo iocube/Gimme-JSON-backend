@@ -11,9 +11,9 @@ class Unique(validate.Validator):
         return self.error.format(input=value)
 
     def __call__(self, value):
-        hashtable = {}
+        hash_table = {}
         for k in value:
-            if hashtable.has_key(k):
+            if k in hash_table:
                 raise ValidationError(self._format_error(value))
-            hashtable[k] = k
+            hash_table[k] = k
         return value

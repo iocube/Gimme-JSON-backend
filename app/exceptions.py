@@ -12,11 +12,14 @@ class BaseHTTPException(Exception):
             self.status_code = status_code
         self.message['status'] = self.status_code
 
+
 class InvalidAPIUsage(BaseHTTPException):
     code = 400
 
-def raise_invalid_api_usage(message={}):
+
+def raise_invalid_api_usage(message=None):
     raise InvalidAPIUsage(message, HTTP_BAD_REQUEST)
+
 
 def raise_not_found():
     abort(HTTP_NOT_FOUND)

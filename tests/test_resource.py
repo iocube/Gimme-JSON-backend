@@ -24,10 +24,14 @@ class ResourceClient(Client):
     def save(self, resource_id, payload):
         return self.put(ResourceClient.BASE_URL + resource_id + '/', data=payload)
 
+
 class BaseTest(unittest.TestCase):
     def setUp(self):
         database.connection.drop_database(settings.MONGODB_NAME)
-        database.database[settings.MONGODB_COLLECTION_RESOURCE].create_index([('endpoint', pymongo.ASCENDING), ('methods', pymongo.ASCENDING)], unique=True)
+        database.database[settings.MONGODB_COLLECTION_RESOURCE].create_index(
+            [('endpoint', pymongo.ASCENDING), ('methods', pymongo.ASCENDING)],
+            unique=True
+        )
         self.client = ResourceClient()
         self.payload = {
             "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
@@ -49,12 +53,13 @@ class BaseTest(unittest.TestCase):
     def assertNotFound(self, response):
         return self.assertEqual(response.status_code, HTTP_NOT_FOUND)
 
+
 class ResourceGET(BaseTest):
     def test_get_resources_list(self):
         response = self.client.get('/resource/')
-        all_resources = response.json
 
         self.assertEqual(response.status_code, HTTP_OK)
+
 
 class ResourcePOST(BaseTest):
     def test_create_new_resource(self):
@@ -129,6 +134,7 @@ class ResourcePOST(BaseTest):
         response = self.client.create_resource(None)
         self.assertBadRequest(response)
 
+
 class ResourceDELETE(BaseTest):
     def test_delete_resource(self):
         response = self.client.create_resource(self.payload)
@@ -140,6 +146,7 @@ class ResourceDELETE(BaseTest):
     def test_delete_unexistent_resource(self):
         response = self.client.delete_resource('571b7cfdeceefb4a395ef433')
         self.assertNotFound(response)
+
 
 class ResourcePATCH(BaseTest):
     def test_edit_all_fields(self):
@@ -201,6 +208,7 @@ class ResourcePATCH(BaseTest):
 
         self.assertBadRequest(response)
 
+
 class ResourcePUT(BaseTest):
     def test_save_changes(self):
         response = self.client.create_resource(self.payload)
@@ -229,7 +237,6 @@ class ResourcePUT(BaseTest):
         }
 
         response = self.client.create_resource(self.payload)
-        new_resource_id = response.json['_id']
         self.assertOK(response)
 
         response = self.client.create_resource(another_payload)

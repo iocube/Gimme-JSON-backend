@@ -1,5 +1,4 @@
 from pymongo import ReturnDocument
-from pymongo.results import InsertOneResult
 from bson.objectid import ObjectId
 
 

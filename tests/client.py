@@ -27,7 +27,7 @@ class Client(object):
         return self._http_call(self.client.delete, *args, **kwargs)
 
     def _http_call(self, method_func, *args, **kwargs):
-        if kwargs.has_key('data'):
+        if 'data' in kwargs:
             kwargs['data'] = json.dumps(kwargs['data'])
             kwargs['content_type'] = 'application/json'
             response = method_func(*args, **kwargs)
@@ -36,7 +36,7 @@ class Client(object):
         # might raise ValueError: No JSON object could be decoded
         try:
             response.json = json.loads(response.get_data())
-        except:
+        except ValueError:
             # couldn't decode.
             response.json = False
 

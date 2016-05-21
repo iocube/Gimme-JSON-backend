@@ -16,15 +16,16 @@ class JSONStringField(fields.Field):
         except ValueError:
             raise ValidationError('Please provide a valid JSON.')
 
+
 class HTTPMethodField(fields.Field):
     def _serialize(self, value, attr, obj):
         return value
 
     def _deserialize(self, value, attr, data):
-        HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
-        if value in HTTP_METHODS:
+        if value in ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']:
             return value
         raise ValidationError('\'{value}\' is not valid HTTP method'.format(value=value))
+
 
 class ObjectIdField(fields.Field):
     def _serialize(self, value, attr, data):
@@ -34,6 +35,7 @@ class ObjectIdField(fields.Field):
         if ObjectId.is_valid(value):
             return {'$oid': value}
         raise ValidationError('Not a valid object id.')
+
 
 class EndpointField(fields.Field):
     def _serialize(self, value, attr, obj):

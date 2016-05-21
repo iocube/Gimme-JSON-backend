@@ -10,6 +10,7 @@ class BaseTest(unittest.TestCase):
     def tearDown(self):
         pass
 
+
 class HTTPNotFound(BaseTest):
     def test_return_not_found(self):
         response = self.client.get('/unknown')
@@ -19,6 +20,7 @@ class HTTPNotFound(BaseTest):
         response = self.client.get('/unknown')
         self.assertEqual(response.mimetype, 'application/json')
         self.assertIsInstance(response.json, dict)
+
 
 class HTTPMethodNotAllowed(BaseTest):
     def test_return_method_not_allowed(self):
@@ -32,7 +34,7 @@ class HTTPMethodNotAllowed(BaseTest):
 
     def test_return_allowed_methods_header(self):
         response = self.client.patch('/resource/', data={})
-        self.assertTrue(response.headers.has_key('Allow'))
+        self.assertTrue('Allow' in response.headers)
 
 if __name__ == '__main__':
     unittest.main()

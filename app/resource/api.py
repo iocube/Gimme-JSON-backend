@@ -10,12 +10,14 @@ from app.util import is_object_id_valid
 
 resource = ResourceDAO()
 
+
 @decorators.crossdomain()
 @decorators.to_json
 def get_list():
     resource_list = resource.get_all()
     serialized = serializers.Resource(many=True).dump(resource_list)
     return serialized.data
+
 
 @decorators.crossdomain()
 @decorators.to_json
@@ -36,6 +38,7 @@ def create():
     serialized = serializers.Resource().dump(new_resource)
     return serialized.data
 
+
 @decorators.crossdomain()
 @decorators.to_json
 def delete(resource_id):
@@ -48,6 +51,7 @@ def delete(resource_id):
         return {}
 
     return raise_not_found()
+
 
 @decorators.crossdomain()
 @decorators.to_json
@@ -73,6 +77,7 @@ def partial_update(resource_id):
 
     serialized = serializers.PartialResource().dump(patched_resource)
     return serialized.data
+
 
 @decorators.crossdomain()
 @decorators.to_json

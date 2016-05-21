@@ -45,6 +45,7 @@ def crossdomain(origin='*', methods=None, headers=None):
         return wrapper
     return decorator
 
+
 def to_json(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -53,7 +54,7 @@ def to_json(func):
         if not isinstance(func_response, tuple):
             return Response(response=util.jsonify(func_response), mimetype='application/json')
 
-        unpack_or_none = lambda response=None, status=HTTP_OK, headers=None: (response, status, headers)
+        unpack_or_none = lambda resp=None, st_code=HTTP_OK, http_headers=None: (resp, st_code, http_headers)
         response, status, headers = unpack_or_none(*func_response)
         jsonfied_response = Response(response=util.jsonify(response), status=status, mimetype='application/json')
 
