@@ -2,11 +2,11 @@ import json
 import flask
 from flask import Response, request
 from app import blueprints, utility
-from app.resource.model import ResourceModel
 from settings import settings
 from app import decorators
 from app.http_status_codes import *
 from app.exceptions import InvalidAPIUsage
+from app.resource.dao import ResourceDAO
 
 
 def assign(source, destination):
@@ -27,8 +27,8 @@ def register_many_blueprints(app, blueprints):
 
 def register_resources(app):
     # register all resources
-    resource_model = ResourceModel()
-    all_resources = resource_model.get_all_resources().raw()
+    resource = ResourceDAO()
+    all_resources = resource.get_all()
     for resource in all_resources:
         app.add_url_rule(
             rule=resource['endpoint'],

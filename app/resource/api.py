@@ -1,22 +1,19 @@
-import json
 from flask import request
-from app.resource.model import ResourceModel
-from app.resource import serializers
 from pymongo.errors import DuplicateKeyError
+
 from app import decorators
+from app.resource import serializers
 from app.exceptions import raise_invalid_api_usage, raise_not_found
-from bson.objectid import ObjectId
+from app.resource.dao import ResourceDAO
+from app.util import is_object_id_valid
 
 
-resource_model = ResourceModel()
-
-def is_resource_id_valid(resource_id):
-    return ObjectId.is_valid(resource_id)
+resource = ResourceDAO()
 
 @decorators.crossdomain()
 @decorators.to_json
 def get_list():
-    resource_list = resource_model.get_all_resources().raw()
+    resource_list = resource.get_all()
     serialized = serializers.Resource(many=True).dump(resource_list)
     return serialized.data
 
@@ -31,32 +28,31 @@ def create():
         raise_invalid_api_usage(error)
 
     try:
-        new_resource = resource_model.create(request.json['endpoint'], request.json['methods'], request.json['response'])
+        new_resource = resource.create(**data)
     except DuplicateKeyError:
         error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
         raise_invalid_api_usage(error_duplicate_values)
 
-    serialized = serializers.Resource().dump(new_resource.raw())
+    serialized = serializers.Resource().dump(new_resource)
     return serialized.data
 
 @decorators.crossdomain()
 @decorators.to_json
 def delete(resource_id):
-    if not is_resource_id_valid(resource_id):
+    if not is_object_id_valid(resource_id):
         raise_not_found()
 
-    deleted = resource_model.delete(resource_id)
+    deleted = resource.delete(resource_id)
 
     if deleted:
         return {}
 
-    # such id does not exist
     return raise_not_found()
 
 @decorators.crossdomain()
 @decorators.to_json
 def partial_update(resource_id):
-    if not is_resource_id_valid(resource_id):
+    if not is_object_id_valid(resource_id):
         raise_not_found()
 
     error_missing_fields = {'error': 'expecting at least one field.'}
@@ -70,18 +66,18 @@ def partial_update(resource_id):
         raise_invalid_api_usage(error_nothing_to_update)
 
     try:
-        patched_resource = resource_model.patch(resource_id, fields_to_update)
+        patched_resource = resource.update(resource_id, fields_to_update)
     except DuplicateKeyError:
         error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
         raise_invalid_api_usage(error_duplicate_values)
 
-    serialized = serializers.PartialResource().dump(patched_resource.raw())
+    serialized = serializers.PartialResource().dump(patched_resource)
     return serialized.data
 
 @decorators.crossdomain()
 @decorators.to_json
 def save(resource_id):
-    if not is_resource_id_valid(resource_id):
+    if not is_object_id_valid(resource_id):
         raise_not_found()
 
     error_missing_fields = {'error': 'resource should contain \'endpoint\', \'methods\' and \'response\' fields'}
@@ -96,10 +92,10 @@ def save(resource_id):
         raise_invalid_api_usage(error_nothing_to_update)
 
     try:
-        updated_resource = resource_model.replace(resource_id, updated_resource)
+        updated_resource = resource.save(resource_id, updated_resource)
     except DuplicateKeyError:
         error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
         raise_invalid_api_usage(error_duplicate_values)
 
-    serialized = serializers.Resource().dump(updated_resource.raw())
+    serialized = serializers.Resource().dump(updated_resource)
     return serialized.data
