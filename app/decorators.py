@@ -1,7 +1,13 @@
 import functools
 from flask import request, Response, current_app
+
 from app.http_status_codes import HTTP_OK
 import util
+from app.user.dao import UserDAO
+from app.exceptions import raise_unauthorized
+
+
+user = UserDAO()
 
 
 def crossdomain(origin='*', methods=None, headers=None):
@@ -51,6 +57,9 @@ def to_json(func):
     def wrapper(*args, **kwargs):
         func_response = func(*args, **kwargs)
 
+        if isinstance(functools, Response):
+            return func_response
+
         if not isinstance(func_response, tuple):
             return Response(response=util.jsonify(func_response), mimetype='application/json')
 
@@ -62,4 +71,18 @@ def to_json(func):
             jsonfied_response.headers.extend(headers)
 
         return jsonfied_response
+    return wrapper
+
+
+def api_key_required(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        api_key = request.args.get('apiKey', None)
+        if not api_key:
+            raise_unauthorized()
+
+        if user.is_valid_api_key(api_key):
+            return func(*args, **kwargs)
+
+        raise_unauthorized()
     return wrapper

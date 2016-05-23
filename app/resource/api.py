@@ -7,11 +7,11 @@ from app.exceptions import raise_invalid_api_usage, raise_not_found
 from app.resource.dao import ResourceDAO
 from app.util import is_object_id_valid
 
-
 resource = ResourceDAO()
 
 
 @decorators.crossdomain()
+@decorators.api_key_required
 @decorators.to_json
 def get_list():
     resource_list = resource.get_all()
