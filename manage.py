@@ -74,6 +74,15 @@ def coverage():
     subprocess.call(coverage_run.format(package=APPLICATION_PACKAGE).split())
     subprocess.call(['coverage', 'html'])
 
+
+@manager.command
+def genappkey():
+    import string
+    from app.util import generate_random_string
+    chars = string.ascii_letters + string.digits + string.punctuation
+    return generate_random_string(chars, 32)
+
+
 manager.add_command("runserver", Server(use_debugger=True, use_reloader=True))
 manager.add_command("database", database_manager)
 

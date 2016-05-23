@@ -1,4 +1,9 @@
+import random
+import string
+
 from bson import json_util, objectid
+
+LETTERS_AND_DIGITS = string.ascii_letters + string.digits
 
 
 def jsonify(data):
@@ -9,3 +14,8 @@ def jsonify(data):
 
 def is_object_id_valid(object_id):
     return objectid.ObjectId.is_valid(object_id)
+
+
+def generate_random_string(chars=LETTERS_AND_DIGITS, length=32):
+    sys_random = random.SystemRandom()
+    return ''.join(sys_random.choice(chars) for i in xrange(length))

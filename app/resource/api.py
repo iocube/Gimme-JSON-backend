@@ -13,6 +13,7 @@ resource = ResourceDAO()
 
 @decorators.crossdomain()
 @decorators.to_json
+@decorators.login_required
 def get_list():
     resource_list = resource.get_all()
     serialized = serializers.Resource(many=True).dump(resource_list)

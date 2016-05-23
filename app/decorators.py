@@ -2,6 +2,8 @@ import functools
 from flask import request, Response, current_app
 from app.http_status_codes import HTTP_OK
 import util
+from app.user.dao import SessionDAO, SessionExpired, InvalidSession
+from app.exceptions import raise_unauthorized
 
 
 def crossdomain(origin='*', methods=None, headers=None):
@@ -51,15 +53,36 @@ def to_json(func):
     def wrapper(*args, **kwargs):
         func_response = func(*args, **kwargs)
 
+        if isinstance(func_response, Response):
+            return func_response
+
         if not isinstance(func_response, tuple):
             return Response(response=util.jsonify(func_response), mimetype='application/json')
 
         unpack_or_none = lambda resp=None, st_code=HTTP_OK, http_headers=None: (resp, st_code, http_headers)
         response, status, headers = unpack_or_none(*func_response)
+
         jsonfied_response = Response(response=util.jsonify(response), status=status, mimetype='application/json')
 
         if headers:
             jsonfied_response.headers.extend(headers)
 
         return jsonfied_response
+    return wrapper
+
+session = SessionDAO()
+def login_required(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if 'sessionId' not in request.cookies:
+            raise_unauthorized()
+
+        cookie = request.cookies['sessionId']
+
+        try:
+            session.validate_session(cookie, request.remote_addr, request.user_agent)
+        except (SessionExpired, InvalidSession):
+            raise_unauthorized()
+
+        return func(*args, **kwargs)
     return wrapper

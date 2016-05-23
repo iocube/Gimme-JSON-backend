@@ -5,7 +5,10 @@ class BaseSettings(object):
     DEBUG = False
     TESTING = False
     MONGODB_COLLECTION_RESOURCE = 'resources'
+    MONGODB_COLLECTION_USER = 'user'
+    MONGODB_COLLECTION_SESSION = 'session'
     TOUCH_ME_TO_RELOAD = 'settings.py'
+    SECRET_KEY = os.environ.get('GIMMEJSON_SECRET_KEY', None)
 
 
 class Development(BaseSettings):
@@ -16,6 +19,7 @@ class Development(BaseSettings):
 class Testing(BaseSettings):
     TESTING = True
     MONGODB_NAME = 'test_gimmejsondb'
+
 
 settings_choices = {
     'default': Development,
