@@ -5,6 +5,7 @@ class BaseSettings(object):
     DEBUG = False
     TESTING = False
     MONGODB_COLLECTION_RESOURCE = 'resources'
+    MONGODB_COLLECTION_USER = 'users'
     TOUCH_ME_TO_RELOAD = 'settings.py'
 
 

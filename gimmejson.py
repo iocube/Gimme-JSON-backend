@@ -83,3 +83,10 @@ def handle_bad_request(error):
 @decorators.to_json
 def handle_internal_server_error(error):
     return {'status': error.code}, error.code
+
+
+@application.errorhandler(HTTP_UNAUTHORIZED)
+@decorators.crossdomain()
+@decorators.to_json
+def handle_unauthorized(error):
+    return {'status': error.code}, error.code

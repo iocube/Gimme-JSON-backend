@@ -1,7 +1,10 @@
 import functools
+import jwt
 from flask import request, Response, current_app
+
 from app.http_status_codes import HTTP_OK
 import util
+from app.exceptions import raise_unauthorized
 
 
 def crossdomain(origin='*', methods=None, headers=None):
@@ -51,6 +54,9 @@ def to_json(func):
     def wrapper(*args, **kwargs):
         func_response = func(*args, **kwargs)
 
+        if isinstance(func_response, Response):
+            return func_response
+
         if not isinstance(func_response, tuple):
             return Response(response=util.jsonify(func_response), mimetype='application/json')
 
@@ -62,4 +68,20 @@ def to_json(func):
             jsonfied_response.headers.extend(headers)
 
         return jsonfied_response
+    return wrapper
+
+
+def jwt_login(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if 'Authorization' not in request.headers:
+            raise_unauthorized()
+
+        try:
+            token = request.headers['Authorization'].split()[1]
+            jwt.decode(token, 'SECRET_KEY')
+        except (jwt.DecodeError, jwt.ExpiredSignatureError):
+            raise_unauthorized()
+
+        return func(*args, **kwargs)
     return wrapper

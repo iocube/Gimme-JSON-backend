@@ -1,5 +1,5 @@
 from flask import abort
-from app.http_status_codes import HTTP_NOT_FOUND, HTTP_BAD_REQUEST
+from app.http_status_codes import HTTP_NOT_FOUND, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED
 
 
 class BaseHTTPException(Exception):
@@ -23,3 +23,6 @@ def raise_invalid_api_usage(message=None):
 
 def raise_not_found():
     abort(HTTP_NOT_FOUND)
+
+def raise_unauthorized():
+    abort(HTTP_UNAUTHORIZED)
