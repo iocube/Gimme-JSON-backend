@@ -11,7 +11,7 @@ user = UserDAO()
 @decorators.crossdomain()
 @decorators.to_json
 def registration():
-    error_missing_fields = {'error': 'Username and Password are required fields'}
+    error_missing_fields = {'error': 'Username and Password are required fields.'}
     incoming_json = request.get_json() or raise_invalid_api_usage(error_missing_fields)
 
     credentials, error = serializers.User().load(incoming_json)
@@ -24,14 +24,13 @@ def registration():
         error_already_exists = {'error': 'Username already exists.'}
         raise_invalid_api_usage(error_already_exists)
 
-    return {}, HTTP_OK, {'Authorization': 'Bearer {0}'.format(token)}
+    return {'token': token}, HTTP_OK
 
 
 @decorators.crossdomain()
 @decorators.to_json
 def login():
-    error_missing_fields = {'error': 'Username and Password are required fields'}
-
+    error_missing_fields = {'error': 'Username and Password are required fields.'}
     incoming_json = request.get_json() or raise_invalid_api_usage(error_missing_fields)
 
     credentials, error = serializers.User().load(incoming_json)
@@ -41,7 +40,7 @@ def login():
     try:
         token = user.login(credentials['username'], credentials['password'])
     except InvalidCredentials:
-        error_bad_credentials = {'error': 'Bad credentials'}
+        error_bad_credentials = {'error': 'Bad credentials.'}
         raise_invalid_api_usage(error_bad_credentials)
 
-    return {}, HTTP_OK, {'Authorization': 'Bearer {0}'.format(token)}
+    return {'token': token}, HTTP_OK
