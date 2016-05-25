@@ -78,10 +78,28 @@ def jwt_login(func):
             raise_unauthorized()
 
         try:
-            token = request.headers['Authorization'].split()[1]
+            auth_type, token = _unpack_authorization_header(request.headers['Authorization'])
+
+            if auth_type != 'JWT':
+                raise jwt.DecodeError()
+            
             jwt.decode(token, 'SECRET_KEY')
         except (jwt.DecodeError, jwt.ExpiredSignatureError):
             raise_unauthorized()
 
         return func(*args, **kwargs)
     return wrapper
+
+
+def _unpack_authorization_header(header):
+    """
+    valid input: "JWT abcdef..."
+    """
+    if not header:
+        raise jwt.DecodeError()
+
+    try:
+        auth_type, token = header.split()
+        return auth_type, token
+    except:
+        raise jwt.DecodeError()
