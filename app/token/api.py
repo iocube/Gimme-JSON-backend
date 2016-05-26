@@ -12,7 +12,7 @@ user = UserDAO()
 
 @decorators.crossdomain()
 @decorators.to_json
-def login():
+def create():
     error_missing_fields = {'error': 'Username and Password are required fields.'}
     incoming_json = request.get_json() or raise_invalid_api_usage(error_missing_fields)
 
