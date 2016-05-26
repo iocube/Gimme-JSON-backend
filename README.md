@@ -7,3 +7,9 @@ $ python -m unittest discover -s tests
 
 ### Running tests before commit
 Copy 'pre-commit' to .git/hooks and run chmod +x pre-commit to make it executable.
+
+
+#### Generating application secret key
+$ python manage.py generatesecret
+<KEY>
+export GIMMEJSON_SECRET_KEY=<KEY>

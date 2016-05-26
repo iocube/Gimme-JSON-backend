@@ -74,6 +74,19 @@ def coverage():
     subprocess.call(coverage_run.format(package=APPLICATION_PACKAGE).split())
     subprocess.call(['coverage', 'html'])
 
+
+@manager.command
+def generatesecret():
+    import string
+    from app import util
+
+    all_characters = string.ascii_lowercase + \
+                     string.ascii_uppercase + \
+                     string.digits + \
+                     string.punctuation
+
+    return util.generate_string(all_characters, length=32)
+
 manager.add_command("runserver", Server(use_debugger=True, use_reloader=True))
 manager.add_command("database", database_manager)
 

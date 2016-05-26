@@ -5,6 +5,7 @@ from flask import request, Response, current_app
 from app.http_status_codes import HTTP_OK
 import util
 from app.exceptions import raise_unauthorized
+from settings import settings
 
 
 def crossdomain(origin='*', methods=None, headers=None):
@@ -83,7 +84,7 @@ def jwt_login(func):
             if auth_type != 'JWT':
                 raise jwt.DecodeError()
             
-            jwt.decode(token, 'SECRET_KEY')
+            jwt.decode(token, settings.SECRET_KEY)
         except (jwt.DecodeError, jwt.ExpiredSignatureError):
             raise_unauthorized()
 

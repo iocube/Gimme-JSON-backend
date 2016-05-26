@@ -7,6 +7,7 @@ class BaseSettings(object):
     MONGODB_COLLECTION_RESOURCE = 'resources'
     MONGODB_COLLECTION_USER = 'users'
     TOUCH_ME_TO_RELOAD = 'settings.py'
+    SECRET_KEY = os.environ.get('GIMMEJSON_SECRET_KEY', None)
 
 
 class Development(BaseSettings):
