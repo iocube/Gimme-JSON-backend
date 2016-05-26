@@ -11,6 +11,6 @@ class TokenDAO(object):
 
     def generate_jwt_token(self):
         return jwt.encode(
-            {'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=8)},
+            {'exp': datetime.datetime.utcnow() + settings.JWT_TOKEN_EXPIRE_IN},
             settings.SECRET_KEY
         )
