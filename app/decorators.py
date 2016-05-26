@@ -72,7 +72,7 @@ def to_json(func):
     return wrapper
 
 
-def jwt_login(func):
+def jwt_auth_required(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if 'Authorization' not in request.headers:

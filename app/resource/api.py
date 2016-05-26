@@ -13,7 +13,7 @@ resource = ResourceDAO()
 
 @decorators.crossdomain()
 @decorators.to_json
-@decorators.jwt_login
+@decorators.jwt_auth_required
 def get_list():
     resource_list = resource.get_all()
     serialized = serializers.Resource(many=True).dump(resource_list)
@@ -22,6 +22,7 @@ def get_list():
 
 @decorators.crossdomain()
 @decorators.to_json
+@decorators.jwt_auth_required
 def create():
     error_missing_fields = {'error': 'resource should contain \'endpoint\', \'methods\' and \'response\' fields'}
     incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_missing_fields)
@@ -42,6 +43,7 @@ def create():
 
 @decorators.crossdomain()
 @decorators.to_json
+@decorators.jwt_auth_required
 def delete(resource_id):
     if not is_object_id_valid(resource_id):
         raise_not_found()
@@ -56,6 +58,7 @@ def delete(resource_id):
 
 @decorators.crossdomain()
 @decorators.to_json
+@decorators.jwt_auth_required
 def partial_update(resource_id):
     if not is_object_id_valid(resource_id):
         raise_not_found()
@@ -82,6 +85,7 @@ def partial_update(resource_id):
 
 @decorators.crossdomain()
 @decorators.to_json
+@decorators.jwt_auth_required
 def save(resource_id):
     if not is_object_id_valid(resource_id):
         raise_not_found()

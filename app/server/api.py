@@ -5,6 +5,7 @@ from settings import settings
 
 @decorators.crossdomain()
 @decorators.to_json
+@decorators.jwt_auth_required
 def restart():
     """
     Flask does not have method to reload server manually except for when
