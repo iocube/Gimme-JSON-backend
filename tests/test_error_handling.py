@@ -24,16 +24,16 @@ class HTTPNotFound(BaseTest):
 
 class HTTPMethodNotAllowed(BaseTest):
     def test_return_method_not_allowed(self):
-        response = self.client.patch('/resource/', data={})
+        response = self.client.patch('/endpoint/', data={})
         self.assertEqual(response.status_code, HTTP_METHOD_NOT_ALLOWED)
 
     def test_return_jsonfied_error(self):
-        response = self.client.patch('/resource/', data={})
+        response = self.client.patch('/endpoint/', data={})
         self.assertEqual(response.mimetype, 'application/json')
         self.assertIsInstance(response.json, dict)
 
     def test_return_allowed_methods_header(self):
-        response = self.client.patch('/resource/', data={})
+        response = self.client.patch('/endpoint/', data={})
         self.assertTrue('Allow' in response.headers)
 
 if __name__ == '__main__':

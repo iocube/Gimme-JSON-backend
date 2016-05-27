@@ -6,7 +6,7 @@ from settings import settings
 from app import decorators
 from app.http_status_codes import *
 from app.exceptions import InvalidAPIUsage
-from app.resource.dao import ResourceDAO
+from app.endpoint.dao import EndpointDAO
 
 
 def assign(source, destination):
@@ -28,23 +28,23 @@ def register_many_blueprints(app, blueprint_list):
         app.register_blueprint(blueprint)
 
 
-def register_resources(app):
-    # register all resources
-    resource = ResourceDAO()
-    all_resources = resource.get_all()
-    for resource in all_resources:
+def register_endpoints(app):
+    # register all endpoints
+    endpoint = EndpointDAO()
+    all_endpoints = endpoint.get_all()
+    for endpoint in all_endpoints:
         app.add_url_rule(
-            rule=resource['endpoint'],
-            endpoint=str(resource['_id']),
-            view_func=endpoint_handler_wrapper(resource['response']),
-            methods=resource['methods']
+            rule=endpoint['endpoint'],
+            endpoint=str(endpoint['_id']),
+            view_func=endpoint_handler_wrapper(endpoint['response']),
+            methods=endpoint['methods']
         )
 
 application = flask.Flask(__name__)
 application.config.from_object(settings)
 
 register_many_blueprints(application, blueprints)
-register_resources(application)
+register_endpoints(application)
 
 
 @application.errorhandler(HTTP_NOT_FOUND)

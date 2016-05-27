@@ -15,7 +15,7 @@ tests_manager = Manager()
 
 @database_manager.command
 def createindexes():
-    database[settings.MONGODB_COLLECTION_RESOURCE].create_index(
+    database[settings.MONGODB_COLLECTION_ENDPOINT].create_index(
         [('endpoint', pymongo.ASCENDING), ('methods', pymongo.ASCENDING)],
         unique=True
     )
@@ -28,10 +28,10 @@ def drop():
 
 @database_manager.command
 def populate():
-    f = open('fixtures/resources.json', 'r')
-    resources = json.loads(f.read())
+    f = open('fixtures/endpoints.json', 'r')
+    endpoints = json.loads(f.read())
     f.close()
-    database[settings.MONGODB_COLLECTION_RESOURCE].insert_many(resources)
+    database[settings.MONGODB_COLLECTION_ENDPOINT].insert_many(endpoints)
 
 
 @manager.option('-m', '--module', dest='module_name')

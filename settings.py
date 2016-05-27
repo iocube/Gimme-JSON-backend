@@ -5,7 +5,7 @@ import datetime
 class BaseSettings(object):
     DEBUG = False
     TESTING = False
-    MONGODB_COLLECTION_RESOURCE = 'resources'
+    MONGODB_COLLECTION_ENDPOINT = 'endpoints'
     MONGODB_COLLECTION_USER = 'users'
     TOUCH_ME_TO_RELOAD = 'settings.py'
     SECRET_KEY = os.environ.get('GIMMEJSON_SECRET_KEY', None)

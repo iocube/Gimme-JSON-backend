@@ -6,23 +6,23 @@ from settings import settings
 from tests.client import Client
 
 
-class ResourceClient(Client):
+class EndpointClient(Client):
     """
-    Shortcut methods to work with Resource API.
+    Shortcut methods to work with 'endpoint' resource
     """
-    BASE_URL = '/resource/'
+    BASE_URL = '/endpoint/'
 
-    def create_resource(self, payload, headers=None):
-        return self.post(ResourceClient.BASE_URL, data=payload, headers=headers)
+    def create_endpoint(self, payload, headers=None):
+        return self.post(EndpointClient.BASE_URL, data=payload, headers=headers)
 
-    def delete_resource(self, resource_id, headers=None):
-        return self.delete(ResourceClient.BASE_URL + resource_id + '/', headers=headers)
+    def delete_endpoint(self, endpoint_id, headers=None):
+        return self.delete(EndpointClient.BASE_URL + endpoint_id + '/', headers=headers)
 
-    def save_changes(self, resource_id, changes, headers=None):
-        return self.patch(ResourceClient.BASE_URL + resource_id + '/', data=changes, headers=headers)
+    def save_changes(self, endpoint_id, changes, headers=None):
+        return self.patch(EndpointClient.BASE_URL + endpoint_id + '/', data=changes, headers=headers)
 
-    def save(self, resource_id, payload, headers=None):
-        return self.put(ResourceClient.BASE_URL + resource_id + '/', data=payload, headers=headers)
+    def save(self, endpoint_id, payload, headers=None):
+        return self.put(EndpointClient.BASE_URL + endpoint_id + '/', data=payload, headers=headers)
 
     def add_user(self, headers=None):
         return self.post('/user/', data={'username': 'admin', 'password': '123456'}, headers=headers)
@@ -35,11 +35,11 @@ class ResourceClient(Client):
 class BaseTest(unittest.TestCase):
     def setUp(self):
         database.connection.drop_database(settings.MONGODB_NAME)
-        database.database[settings.MONGODB_COLLECTION_RESOURCE].create_index(
+        database.database[settings.MONGODB_COLLECTION_ENDPOINT].create_index(
             [('endpoint', pymongo.ASCENDING), ('methods', pymongo.ASCENDING)],
             unique=True
         )
-        self.client = ResourceClient()
+        self.client = EndpointClient()
         self.payload = {
             "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
             "endpoint": "/api/v1/test",
@@ -67,24 +67,24 @@ class BaseTest(unittest.TestCase):
         return self.assertEqual(response.status_code, HTTP_UNAUTHORIZED)
 
 
-class ResourceGET(BaseTest):
-    def test_get_resources_list(self):
-        response = self.client.get(ResourceClient.BASE_URL, headers=self.auth_headers)
+class EndpointGET(BaseTest):
+    def test_get_endpoint_list(self):
+        response = self.client.get(EndpointClient.BASE_URL, headers=self.auth_headers)
 
         self.assertEqual(response.status_code, HTTP_OK)
 
     def test_return_unauthorized(self):
-        response = self.client.get(ResourceClient.BASE_URL)
+        response = self.client.get(EndpointClient.BASE_URL)
         self.assertUnauthorized(response)
 
 
-class ResourcePOST(BaseTest):
-    def test_create_new_resource(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
+class EndpointPOST(BaseTest):
+    def test_create_new_endpoint(self):
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         self.assertOK(response)
 
-    def test_allocate_id_for_resource(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
+    def test_allocate_id_for_endpoint(self):
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         self.assertIn('_id', response.json)
 
     def test_return_error_if_endpoint_missing(self):
@@ -95,7 +95,7 @@ class ResourcePOST(BaseTest):
             ]
         }
 
-        response = self.client.create_resource(payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(payload, headers=self.auth_headers)
         self.assertBadRequest(response)
         self.assertIn('endpoint', response.json)
 
@@ -107,13 +107,13 @@ class ResourcePOST(BaseTest):
             ]
         }
 
-        response = self.client.create_resource(payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(payload, headers=self.auth_headers)
         self.assertBadRequest(response)
         self.assertIn('response', response.json)
 
     def test_return_error_if_duplicate_endpoints_and_methods(self):
         """
-        should return error if such endpoint and method is already exist when creating new resource
+        should return error if such endpoint and method is already exist when creating new endpoint
         """
 
         payload = {
@@ -125,10 +125,10 @@ class ResourcePOST(BaseTest):
             ]
         }
 
-        response = self.client.create_resource(payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(payload, headers=self.auth_headers)
         self.assertOK(response)
 
-        response = self.client.create_resource(payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(payload, headers=self.auth_headers)
         self.assertBadRequest(response)
         self.assertIn('endpoint', response.json)
 
@@ -138,48 +138,48 @@ class ResourcePOST(BaseTest):
             "endpoint": "/api/v1/test"
         }
 
-        response = self.client.create_resource(payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(payload, headers=self.auth_headers)
         self.assertBadRequest(response)
         self.assertIn('methods', response.json)
 
     def test_return_error_if_all_fields_missing(self):
         payload = {}
 
-        response = self.client.create_resource(payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(payload, headers=self.auth_headers)
         self.assertBadRequest(response)
 
-        response = self.client.create_resource(None, headers=self.auth_headers)
+        response = self.client.create_endpoint(None, headers=self.auth_headers)
         self.assertBadRequest(response)
 
     def test_return_unauthorized(self):
-        response = self.client.create_resource(self.payload)
+        response = self.client.create_endpoint(self.payload)
         self.assertUnauthorized(response)
 
 
-class ResourceDELETE(BaseTest):
-    def test_delete_resource(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
-        new_resource_id = response.json['_id']
+class EndpointDELETE(BaseTest):
+    def test_delete_endpoint(self):
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
+        new_endpoint_id = response.json['_id']
 
-        response = self.client.delete_resource(new_resource_id, headers=self.auth_headers)
+        response = self.client.delete_endpoint(new_endpoint_id, headers=self.auth_headers)
         self.assertOK(response)
 
-    def test_delete_unexistent_resource(self):
-        response = self.client.delete_resource('571b7cfdeceefb4a395ef433', headers=self.auth_headers)
+    def test_delete_unexistent_endpoint(self):
+        response = self.client.delete_endpoint('571b7cfdeceefb4a395ef433', headers=self.auth_headers)
         self.assertNotFound(response)
 
     def test_return_unauthorized(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
-        new_resource_id = response.json['_id']
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
+        new_endpoint_id = response.json['_id']
 
-        response = self.client.delete_resource(new_resource_id, self.payload)
+        response = self.client.delete_endpoint(new_endpoint_id, self.payload)
         self.assertUnauthorized(response)
 
 
-class ResourcePATCH(BaseTest):
+class EndpointPATCH(BaseTest):
     def test_edit_all_fields(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
-        resource_id = response.json['_id']
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
+        endpoint_id = response.json['_id']
 
         new_payload = {
             "response": "{\"name\": \"Alice\", \"city\": \"Tel-Aviv\"}",
@@ -189,13 +189,13 @@ class ResourcePATCH(BaseTest):
             ]
         }
 
-        response = self.client.save_changes(resource_id, new_payload, headers=self.auth_headers)
+        response = self.client.save_changes(endpoint_id, new_payload, headers=self.auth_headers)
 
-        patched_resource = response.json
-        new_payload['_id'] = patched_resource['_id']
+        patched_endpoint = response.json
+        new_payload['_id'] = patched_endpoint['_id']
 
         self.assertOK(response)
-        self.assertEqual(patched_resource, new_payload)
+        self.assertEqual(patched_endpoint, new_payload)
 
     def test_return_error_if_duplicate_endpoints_and_methods(self):
         """
@@ -210,56 +210,56 @@ class ResourcePATCH(BaseTest):
             ]
         }
 
-        self.client.create_resource(self.payload, headers=self.auth_headers)
-        response = self.client.create_resource(payload_second, headers=self.auth_headers)
+        self.client.create_endpoint(self.payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(payload_second, headers=self.auth_headers)
 
-        resource_to_patch = response.json
-        resource_id = resource_to_patch['_id']
+        endpoint_to_patch = response.json
+        endpoint_id = endpoint_to_patch['_id']
 
-        resource_to_patch['endpoint'] = '/api/v1/test'
+        endpoint_to_patch['endpoint'] = '/api/v1/test'
 
-        response = self.client.save_changes(resource_id, resource_to_patch, headers=self.auth_headers)
+        response = self.client.save_changes(endpoint_id, endpoint_to_patch, headers=self.auth_headers)
 
         self.assertBadRequest(response)
         self.assertIn('endpoint',  response.json)
 
     def test_return_error_if_patching_id(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
-        new_resource = response.json
-        resource_id = new_resource['_id']
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
+        new_endpoint = response.json
+        endpoint_id = new_endpoint['_id']
 
         patch_payload = {
             '_id': {'$oid': '571b7cfdeceefb4a395ef433'}
         }
 
-        response = self.client.save_changes(resource_id, patch_payload, headers=self.auth_headers)
+        response = self.client.save_changes(endpoint_id, patch_payload, headers=self.auth_headers)
 
         self.assertBadRequest(response)
 
     def test_return_unauthorized(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
-        resource_id = response.json['_id']
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
+        endpoint_id = response.json['_id']
 
         patch_payload = {
             'endpoint': '/api/v1/test'
         }
 
-        response = self.client.save_changes(resource_id, patch_payload)
+        response = self.client.save_changes(endpoint_id, patch_payload)
 
         self.assertUnauthorized(response)
 
 
-class ResourcePUT(BaseTest):
+class EndpointPUT(BaseTest):
     def test_save_changes(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
-        new_resource_id = response.json['_id']
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
+        new_endpoint_id = response.json['_id']
 
         self.payload['methods'] = ['POST']
-        response = self.client.save(new_resource_id, self.payload, headers=self.auth_headers)
+        response = self.client.save(new_endpoint_id, self.payload, headers=self.auth_headers)
         self.assertEqual(response.json['methods'], ['POST'])
 
     def test_ignore_id_on_put(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         self.payload['methods'] = ['POST']
         self.payload['_id'] = response.json['_id']
 
@@ -276,47 +276,47 @@ class ResourcePUT(BaseTest):
             ]
         }
 
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         self.assertOK(response)
 
-        response = self.client.create_resource(another_payload, headers=self.auth_headers)
-        new_resource_id = response.json['_id']
+        response = self.client.create_endpoint(another_payload, headers=self.auth_headers)
+        new_endpoint_id = response.json['_id']
         self.assertOK(response)
 
         another_payload['methods'] = ['GET']
-        response = self.client.save(new_resource_id, another_payload, headers=self.auth_headers)
+        response = self.client.save(new_endpoint_id, another_payload, headers=self.auth_headers)
         self.assertBadRequest(response)
 
     def test_return_error_if_all_fields_missing(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
 
         empty_payload = {}
         response = self.client.save(response.json['_id'], empty_payload, headers=self.auth_headers)
         self.assertBadRequest(response)
 
     def test_return_error_if_response_missing(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         del self.payload['response']
 
         response = self.client.save(response.json['_id'], self.payload, headers=self.auth_headers)
         self.assertBadRequest(response)
 
     def test_return_error_if_methods_missing(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         del self.payload['methods']
 
         response = self.client.save(response.json['_id'], self.payload, headers=self.auth_headers)
         self.assertBadRequest(response)
 
     def test_return_error_if_endpoint_missing(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         del self.payload['endpoint']
 
         response = self.client.save(response.json['_id'], self.payload, headers=self.auth_headers)
         self.assertBadRequest(response)
 
     def test_return_unauthorized(self):
-        response = self.client.create_resource(self.payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         del self.payload['endpoint']
 
         response = self.client.save(response.json['_id'], self.payload)

@@ -3,6 +3,6 @@ from app.database import database
 from app.dao import BaseDAO
 
 
-class ResourceDAO(BaseDAO):
+class EndpointDAO(BaseDAO):
     def __init__(self):
-        self.collection = database[settings.MONGODB_COLLECTION_RESOURCE]
+        self.collection = database[settings.MONGODB_COLLECTION_ENDPOINT]

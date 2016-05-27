@@ -21,7 +21,7 @@ class TokenClient(Client):
 class BaseTest(unittest.TestCase):
     def setUp(self):
         database.connection.drop_database(settings.MONGODB_NAME)
-        database.database[settings.MONGODB_COLLECTION_RESOURCE].create_index(
+        database.database[settings.MONGODB_COLLECTION_ENDPOINT].create_index(
             [('endpoint', pymongo.ASCENDING), ('methods', pymongo.ASCENDING)],
             unique=True
         )
