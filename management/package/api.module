@@ -1,0 +1,15 @@
+from flask import request
+
+from app import decorators
+from app.{{pkg}} import serializers
+from app.exceptions import raise_invalid_api_usage, raise_not_found
+from app.{{pkg}}.dao import {{pkg|title}}DAO
+
+
+{{pkg}} = {{pkg|title}}DAO()
+
+@decorators.crossdomain()
+@decorators.to_json
+@decorators.jwt_auth_required
+def get():
+    return {}

@@ -107,6 +107,32 @@ def showroutes():
     for line in sorted(output):
         print(line)
 
+@manager.command
+def newresource(pkg_name):
+    import os
+    import shutil
+    from jinja2 import Template
+
+    pkg_dst_folder = '{dst}/{pkg}'.format(dst='app/', pkg=pkg_name)
+    pkg_template_folder = 'management/package'
+
+    shutil.copytree(pkg_template_folder, pkg_dst_folder)
+    os.chdir(pkg_dst_folder)
+    module_list = filter(lambda filename: filename.endswith('.module'), os.listdir())
+
+    for each in module_list:
+        f = open(each, 'r')
+        module_content = f.read()
+        f.close()
+
+        f = open(each, 'w')
+        template = Template(module_content)
+        rendered = template.render(pkg=pkg_name)
+        f.write(rendered)
+        f.close()
+
+        os.rename(each, each.replace('.module', '.py'))
+
 manager.add_command("runserver", Server(use_debugger=True, use_reloader=True))
 manager.add_command("database", database_manager)
 

@@ -1,0 +1,7 @@
+from app.{{pkg}} import api
+from flask import Blueprint
+
+
+blueprint = Blueprint('{{pkg}}', __name__)
+
+blueprint.add_url_rule('/{{pkg}}/', view_func=api.get, methods=['GET'])

@@ -1,0 +1,8 @@
+from settings import settings
+from app.database import database
+from app.dao import BaseDAO
+
+
+class {{pkg|title}}DAO(BaseDAO):
+    def __init__(self):
+        self.collection = None
