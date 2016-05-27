@@ -1,6 +1,6 @@
 import unittest
 from app.http_status_codes import *
-from client import Client
+from tests.client import Client
 
 
 class BaseTest(unittest.TestCase):

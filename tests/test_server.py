@@ -3,7 +3,7 @@ import unittest
 import pymongo
 
 from app import database
-from client import Client
+from tests.client import Client
 from app.http_status_codes import *
 from settings import settings
 

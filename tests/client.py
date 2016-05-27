@@ -35,7 +35,7 @@ class Client(object):
             response = method_func(*args, **kwargs)
         # might raise ValueError: No JSON object could be decoded
         try:
-            response.json = json.loads(response.get_data())
+            response.json = json.loads(response.get_data().decode('utf-8'))
         except ValueError:
             # couldn't decode.
             response.json = False

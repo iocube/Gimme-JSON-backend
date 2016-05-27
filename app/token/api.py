@@ -21,6 +21,6 @@ def create():
         raise_invalid_api_usage(error)
 
     if user.is_valid_credentials(credentials['username'], credentials['password']):
-        return {'token': token.generate_jwt_token()}
+        return {'token': token.generate_jwt_token().decode('utf-8')}
 
     raise_invalid_api_usage({'error': 'Bad credentials.'})

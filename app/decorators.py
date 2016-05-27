@@ -3,7 +3,7 @@ import jwt
 from flask import request, Response, current_app
 
 from app.http_status_codes import HTTP_OK
-import util
+from app import util
 from app.exceptions import raise_unauthorized
 from settings import settings
 

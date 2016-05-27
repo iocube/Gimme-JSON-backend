@@ -1,12 +1,12 @@
-import resource.routes
-import server.routes
-import user.routes
-import token.routes
+import app.resource.routes
+import app.server.routes
+import app.user.routes
+import app.token.routes
 
 
 blueprints = [
-        resource.routes.blueprint,
-        server.routes.blueprint,
-        user.routes.blueprint,
-        token.routes.blueprint
+        app.resource.routes.blueprint,
+        app.server.routes.blueprint,
+        app.user.routes.blueprint,
+        app.token.routes.blueprint
 ]

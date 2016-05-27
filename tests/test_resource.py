@@ -3,7 +3,7 @@ import pymongo
 from app import database
 from app.http_status_codes import *
 from settings import settings
-from client import Client
+from tests.client import Client
 
 
 class ResourceClient(Client):
