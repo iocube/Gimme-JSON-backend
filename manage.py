@@ -87,6 +87,26 @@ def generatesecret():
 
     return util.generate_string(all_characters, length=32)
 
+
+@manager.command
+def showroutes():
+    import urllib
+    from flask import url_for
+
+    output = []
+    for rule in application.url_map.iter_rules():
+        options = {}
+        for arg in rule.arguments:
+            options[arg] = "[{0}]".format(arg)
+
+        methods = ','.join(rule.methods)
+        url = url_for(rule.endpoint, _external=True, **options)
+        line = urllib.unquote("{:50s} {:20s} {}".format(rule.endpoint, methods, url))
+        output.append(line)
+
+    for line in sorted(output):
+        print line
+
 manager.add_command("runserver", Server(use_debugger=True, use_reloader=True))
 manager.add_command("database", database_manager)
 
