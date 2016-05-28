@@ -135,6 +135,18 @@ def newresource(pkg_name):
 
         os.rename(each, each.replace('.module', '.py'))
 
+
+@manager.command
+def profile(length=25, profile_dir=None):
+    """Start the application under the code profiler."""
+    from werkzeug.contrib.profiler import ProfilerMiddleware
+    application.wsgi_app = ProfilerMiddleware(
+        application.wsgi_app,
+        restrictions=[length],
+        profile_dir=profile_dir)
+    application.run()
+
+
 manager.add_command("runserver", Server(use_debugger=True, use_reloader=True))
 manager.add_command("database", database_manager)
 
