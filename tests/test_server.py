@@ -24,6 +24,7 @@ class ServerClient(Client):
 class BaseTest(unittest.TestCase):
     def setUp(self):
         database.connection.drop_database(settings.MONGODB_NAME)
+
         self.client = ServerClient()
         self.client.add_user()
         self.auth_token = self.client.get_token()

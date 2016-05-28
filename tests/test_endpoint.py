@@ -5,6 +5,7 @@ from app.http_status_codes import *
 from settings import settings
 from tests.client import Client
 from app.endpoint.dao import EndpointDAO
+import manage
 
 
 class EndpointClient(Client):
@@ -36,8 +37,9 @@ class EndpointClient(Client):
 class BaseTest(unittest.TestCase):
     def setUp(self):
         database.connection.drop_database(settings.MONGODB_NAME)
-        endpoint = EndpointDAO()
-        endpoint._index()
+
+        # create all indexes
+        manage.index()
 
         self.client = EndpointClient()
         self.payload = {

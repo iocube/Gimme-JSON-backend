@@ -15,10 +15,13 @@ tests_manager = Manager()
 @database_manager.command
 def index():
     from app.endpoint.dao import EndpointDAO
+    from app.user.dao import UserDAO
 
     endpoint = EndpointDAO()
     endpoint._index()
 
+    user = UserDAO()
+    user._index()
 
 @database_manager.command
 def drop():

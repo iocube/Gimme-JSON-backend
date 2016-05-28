@@ -1,8 +1,10 @@
 from flask import request
+from pymongo.errors import DuplicateKeyError
+
 from app import decorators
 from app.exceptions import raise_invalid_api_usage
 from app.user import serializers
-from app.user.dao import UserDAO, UsernameTaken
+from app.user.dao import UserDAO
 
 
 user = UserDAO()
@@ -20,7 +22,7 @@ def create():
 
     try:
         user.create(credentials['username'], credentials['password'])
-    except UsernameTaken:
+    except DuplicateKeyError:
         error_already_exists = {'error': 'Username already exists.'}
         raise_invalid_api_usage(error_already_exists)
 

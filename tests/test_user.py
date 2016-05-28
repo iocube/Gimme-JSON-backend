@@ -4,7 +4,7 @@ from app import database
 from tests.client import Client
 from settings import settings
 from app.http_status_codes import *
-
+import manage
 
 class UserClient(Client):
     BASE_URL = '/user/'
@@ -16,6 +16,10 @@ class UserClient(Client):
 class BaseTest(unittest.TestCase):
     def setUp(self):
         database.connection.drop_database(settings.MONGODB_NAME)
+
+        # create all indexes
+        manage.index()
+
         self.client = UserClient()
 
     def tearDown(self):

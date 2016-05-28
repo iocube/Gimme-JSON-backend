@@ -1,3 +1,5 @@
+from pymongo import IndexModel
+
 from settings import settings
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.database import database
@@ -12,15 +14,8 @@ class UserDAO(object):
         self.collection = database[settings.MONGODB_COLLECTION_USER]
 
     def create(self, username, password):
-        # TODO: set an index on username field
-        if self.is_user_exists(username):
-            raise UsernameTaken()
-
         hashed_password = generate_password_hash(password)
         self.collection.insert_one({'username': username, 'password': hashed_password})
-
-    def is_user_exists(self, username):
-        return self.collection.find_one({'username': username}) is not None
 
     def is_valid_credentials(self, username, password):
         user = self.collection.find_one({'username': username})
@@ -29,3 +24,6 @@ class UserDAO(object):
             return False
 
         return True
+
+    def _index(self):
+        self.collection.create_index('username', unique=True)
