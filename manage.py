@@ -1,4 +1,3 @@
-import pymongo
 import json
 import subprocess
 
@@ -14,11 +13,11 @@ tests_manager = Manager()
 
 
 @database_manager.command
-def createindexes():
-    database[settings.MONGODB_COLLECTION_ENDPOINT].create_index(
-        [('endpoint', pymongo.ASCENDING), ('methods', pymongo.ASCENDING)],
-        unique=True
-    )
+def index():
+    from app.endpoint.dao import EndpointDAO
+
+    endpoint = EndpointDAO()
+    endpoint._index()
 
 
 @database_manager.command

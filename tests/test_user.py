@@ -1,5 +1,4 @@
 import unittest
-import pymongo
 
 from app import database
 from tests.client import Client
@@ -17,10 +16,6 @@ class UserClient(Client):
 class BaseTest(unittest.TestCase):
     def setUp(self):
         database.connection.drop_database(settings.MONGODB_NAME)
-        database.database[settings.MONGODB_COLLECTION_ENDPOINT].create_index(
-            [('endpoint', pymongo.ASCENDING), ('methods', pymongo.ASCENDING)],
-            unique=True
-        )
         self.client = UserClient()
 
     def tearDown(self):
