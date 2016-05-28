@@ -4,7 +4,6 @@ from app import database
 from app.http_status_codes import *
 from settings import settings
 from tests.client import Client
-from app.endpoint.dao import EndpointDAO
 import manage
 
 

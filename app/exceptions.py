@@ -24,5 +24,6 @@ def raise_invalid_api_usage(message=None):
 def raise_not_found():
     abort(HTTP_NOT_FOUND)
 
+
 def raise_unauthorized():
     abort(HTTP_UNAUTHORIZED)

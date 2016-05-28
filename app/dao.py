@@ -3,6 +3,9 @@ from bson.objectid import ObjectId
 
 
 class BaseDAO(object):
+    def __init__(self):
+        self.collection = None
+
     def get_by_id(self, document_id):
         return self.collection.find_one({'_id': document_id})
 

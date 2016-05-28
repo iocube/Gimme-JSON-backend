@@ -6,6 +6,7 @@ from settings import settings
 from app.http_status_codes import *
 import manage
 
+
 class UserClient(Client):
     BASE_URL = '/user/'
 
@@ -73,6 +74,7 @@ class UserPOST(BaseTest):
         user = {'username': 'admin', 'password': '123456'}
         response = self.client.add_user(user)
         self.assertBadRequest(response)
+
 
 class UserDELETE(BaseTest):
     def test_return_method_not_allowed(self):
