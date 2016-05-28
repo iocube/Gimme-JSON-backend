@@ -13,7 +13,7 @@ class TokenClient(Client):
         return self.post(TokenClient.BASE_URL, data=user)
 
     def add_user(self):
-        user = {'username': 'admin', 'password': '123456'}
+        user = {'username': 'admin', 'password': '12345678'}
         return self.post('/user/', data=user)
 
 
@@ -44,7 +44,7 @@ class TokenGET(BaseTest):
 
 class TokenPOST(BaseTest):
     def test_create_new_token(self):
-        credentials = {'username': 'admin', 'password': '123456'}
+        credentials = {'username': 'admin', 'password': '12345678'}
         response = self.client.create_token(credentials)
         self.assertOK(response)
         self.assertTrue('token' in response.json)

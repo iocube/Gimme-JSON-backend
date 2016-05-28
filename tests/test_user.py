@@ -43,12 +43,12 @@ class UserGET(BaseTest):
 
 class UserPOST(BaseTest):
     def test_create_new_user(self):
-        user = {'username': 'admin', 'password': '123456'}
+        user = {'username': 'admin', 'password': '12345678'}
         response = self.client.add_user(user)
         self.assertOK(response)
 
     def test_return_error_if_no_username(self):
-        user = {'password': '123456'}
+        user = {'password': '12345678'}
         response = self.client.add_user(user)
         self.assertBadRequest(response)
 
@@ -63,12 +63,16 @@ class UserPOST(BaseTest):
         self.assertBadRequest(response)
 
     def test_return_error_if_username_is_taken(self):
-        user = {'username': 'admin', 'password': '123456'}
+        user = {'username': 'admin', 'password': '12345678'}
         self.client.add_user(user)
 
         response = self.client.add_user(user)
         self.assertBadRequest(response)
 
+    def test_return_error_if_password_less_then_minimum(self):
+        user = {'username': 'admin', 'password': '123456'}
+        response = self.client.add_user(user)
+        self.assertBadRequest(response)
 
 class UserDELETE(BaseTest):
     def test_return_method_not_allowed(self):

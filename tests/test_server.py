@@ -14,10 +14,10 @@ class ServerClient(Client):
         return self.client.delete(ServerClient.BASE_URL, headers=headers)
 
     def add_user(self, headers=None):
-        return self.post('/user/', data={'username': 'admin', 'password': '123456'}, headers=headers)
+        return self.post('/user/', data={'username': 'admin', 'password': '12345678'}, headers=headers)
 
     def get_token(self, headers=None):
-        response = self.post('/token/', data={'username': 'admin', 'password': '123456'}, headers=headers)
+        response = self.post('/token/', data={'username': 'admin', 'password': '12345678'}, headers=headers)
         return response.json['token']
 
 
