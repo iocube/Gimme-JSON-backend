@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# checkout master branch
+git --work-tree /srv/application --git-dir /srv/gimme-json.git/ checkout -f master
+
+cd /srv/application
+
+docker-compose up -d --build
+docker-compose logs
