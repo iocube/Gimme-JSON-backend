@@ -10,6 +10,8 @@ services:
       - db
     volumes:
       - /var:/var
+    env_file:
+      - /opt/secrets/.env
   db:
     build:
       context: .
@@ -17,3 +19,5 @@ services:
     volumes:
       - /data/db:/data/db
       - /var:/var
+    env_file:
+      - /opt/secrets/.env
