@@ -2,5 +2,5 @@ import pymongo
 from settings import settings
 
 
-connection = pymongo.MongoClient('db', 27017)
+connection = intpymongo.MongoClient(settings.DATABASE_HOST, int(settings.DATABASE_PORT))
 database = connection[settings.MONGODB_NAME]
