@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # checkout master branch
-git --work-tree /srv/webapp --git-dir /srv/webapp.git/ checkout -f master
+git --work-tree /srv/gimmejson/src --git-dir /srv/gimmejson/webapp.git/ checkout -f master
 
 echo "Deploying commit: `git rev-parse HEAD`"
 
-cd /srv/webapp
+cd /srv/gimmejson/src
 docker-compose up -d --build
 docker-compose logs

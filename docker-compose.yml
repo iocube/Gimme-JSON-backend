@@ -3,21 +3,13 @@ services:
   web:
     build:
       context: .
-      dockerfile: application.dockerfile
-    ports:
-      - "80:8000"
+      dockerfile: webapp.dockerfile
     depends_on:
       - db
-    volumes:
-      - /var:/var
-    env_file:
-      - /opt/secrets/.env
   db:
     build:
       context: .
       dockerfile: mongodb.dockerfile
     volumes:
-      - /data/db:/data/db
-      - /var:/var
-    env_file:
-      - /opt/secrets/.env
+      - /srv/gimmejson/db:/data/db
+      - /srv/gimmejson/log:/var/log/mongod.log

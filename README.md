@@ -85,3 +85,17 @@ POST `localhost:5000/endpoint/`
 After you have created new endpoints you should restart the server so that you can interact with your endpoints,
 therefore there is endpoint for that!
 DELETE `localhost:5000/server/` (nope, it will not self-destroy the server, trust me)
+
+#### Docker
+##### Preparation
+###### Server Machine
+$ sudo mkdir /srv/gimmejson/ /srv/gimmejson/src /srv/gimmejson/gimmejson.git /srv/gimmejson/db /srv/gimmejson/log
+$ sudo chown -R /srv/gimmejson owner:owner
+
+###### Developer Machine
+$ scp .env.prod user@server.ip:/srv/gimmejson
+
+### Development
+$ sudo mkdir /srv/gimmejson /srv/gimmejson/db /srv/gimmejson/log
+$ sudo chown -R /srv/gimmejson owner:owner
+$ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
