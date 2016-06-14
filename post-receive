@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # checkout master branch
-git --work-tree /srv/gimmejson/src --git-dir /srv/gimmejson/webapp.git/ checkout -f master
+git --work-tree /srv/gimmejson/src --git-dir /srv/gimmejson/gimmejson.git/ checkout -f master
 
 echo "Deploying commit: `git rev-parse HEAD`"
 
