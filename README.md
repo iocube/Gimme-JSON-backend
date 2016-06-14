@@ -89,11 +89,20 @@ DELETE `localhost:5000/server/` (nope, it will not self-destroy the server, trus
 #### Docker
 ##### Preparation
 ###### Server Machine
+Install docker and docker-compose.
+
 $ sudo mkdir /srv/gimmejson/ /srv/gimmejson/src /srv/gimmejson/gimmejson.git /srv/gimmejson/db /srv/gimmejson/log
-$ sudo chown -R /srv/gimmejson owner:owner
+$ sudo chown -R owner:owner /srv/gimmejson
+$ cd /srv/gimmejson/gimmejson.git
+$ git init --bare
+$ scp post-receive user@server_ip:/srv/gimmejson/gimmejson.git/hooks
 
 ###### Developer Machine
 $ scp .env.prod user@server.ip:/srv/gimmejson
+$ git remote add production user@server_ip:/srv/gimmejson/gimmejson.git
+
+##### Deploy
+TODO
 
 ### Development
 $ sudo mkdir /srv/gimmejson /srv/gimmejson/db /srv/gimmejson/log
