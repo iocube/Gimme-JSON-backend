@@ -11,5 +11,5 @@ services:
       context: .
       dockerfile: mongodb.dockerfile
     volumes:
-      - /srv/gimmejson/db:/data/db
-      - /srv/gimmejson/log:/var/log/mongod.log
+      - /srv/gimmejson/mongo/db:/data/db
+      - /srv/gimmejson/mongo/:/var/log/mongod

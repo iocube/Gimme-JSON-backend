@@ -6,8 +6,7 @@ services:
     env_file:
       - /srv/gimmejson/.env.prod
     volumes:
-      - /srv/gimmejson/log/gunicorn.access.log:/var/log/gunicorn.access.log
-      - /srv/gimmejson/log/gunicorn.error.log:/var/log/gunicorn.error.log
+      - /srv/gimmejson/gunicorn:/var/log/gunicorn
   db:
     env_file:
       - /srv/gimmejson/.env.prod

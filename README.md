@@ -95,11 +95,12 @@ $ sudo mkdir /srv/gimmejson/ /srv/gimmejson/src /srv/gimmejson/gimmejson.git /sr
 $ sudo chown -R owner:owner /srv/gimmejson
 $ cd /srv/gimmejson/gimmejson.git
 $ git init --bare
-$ scp post-receive user@server_ip:/srv/gimmejson/gimmejson.git/hooks
+$ chmod +x /srv/gimmejson/gimmejson.git/hooks/post-receive
 
 ###### Developer Machine
 $ scp .env.prod user@server.ip:/srv/gimmejson
 $ git remote add production user@server_ip:/srv/gimmejson/gimmejson.git
+$ scp post-receive user@server_ip:/srv/gimmejson/gimmejson.git/hooks
 
 ##### Deploy
 TODO
