@@ -33,7 +33,7 @@ def populate():
     f = open('fixtures/endpoints.json', 'r')
     endpoints = json.loads(f.read())
     f.close()
-    database[settings.MONGODB_COLLECTION_ENDPOINT].insert_many(endpoints)
+    database.endpoints.insert_many(endpoints)
 
 
 @manager.option('-m', '--module', dest='module_name')
