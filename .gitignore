@@ -3,5 +3,5 @@
 htmlcov/
 .coverage
 .idea/
-.env.prod
+.env
 .env.dev
