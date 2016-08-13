@@ -1,7 +1,7 @@
 import json
 import subprocess
 
-from settings import settings
+from settings import Testing
 from gimmejson import application
 from flask.ext.script import Manager, Server
 from app.database import database, connection
@@ -25,7 +25,7 @@ def index():
 
 @database_manager.command
 def drop():
-    connection.drop_database(settings.MONGODB_NAME)
+    connection.drop_database(Testing.MONGODB_NAME)
 
 
 @database_manager.command

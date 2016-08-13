@@ -4,4 +4,3 @@ htmlcov/
 .coverage
 .idea/
 .env
-.env.dev

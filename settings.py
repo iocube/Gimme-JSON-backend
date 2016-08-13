@@ -12,6 +12,7 @@ class BaseSettings(object):
     JWT_TOKEN_EXPIRE_IN = datetime.timedelta(hours=8)
     IS_AUTH_REQUIRED = False
 
+
 class Development(BaseSettings):
     DEBUG = True
     MONGODB_NAME = 'gimmejsondb'
@@ -22,11 +23,4 @@ class Testing(BaseSettings):
     IS_AUTH_REQUIRED = True
     MONGODB_NAME = 'test_gimmejsondb'
 
-settings_choices = {
-    'default': Development,
-    'development': Development,
-    'testing': Testing
-}
-
-settings_name = os.environ.get('GIMMEJSON_SETTINGS', 'default')
-settings = settings_choices[settings_name]
+settings = Development
