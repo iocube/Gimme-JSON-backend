@@ -10,7 +10,7 @@ class BaseSettings(object):
     DATABASE_HOST = os.environ.get('GIMMEJSON_DATABASE_HOST', 'localhost')
     DATABASE_PORT = os.environ.get('GIMMEJSON_DATABASE_PORT', 27017)
     JWT_TOKEN_EXPIRE_IN = datetime.timedelta(hours=8)
-
+    IS_AUTH_REQUIRED = False
 
 class Development(BaseSettings):
     DEBUG = True
@@ -19,6 +19,7 @@ class Development(BaseSettings):
 
 class Testing(BaseSettings):
     TESTING = True
+    IS_AUTH_REQUIRED = True
     MONGODB_NAME = 'test_gimmejsondb'
 
 settings_choices = {
