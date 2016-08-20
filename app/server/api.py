@@ -17,3 +17,13 @@ def restart():
     """
     os.utime(settings.TOUCH_ME_TO_RELOAD, None)
     return {}
+
+@decorators.crossdomain()
+@decorators.to_json
+@decorators.jwt_auth_required
+def status():
+    """
+    Server status.
+    """
+
+    return {'status': 200}
