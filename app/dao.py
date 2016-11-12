@@ -19,7 +19,10 @@ class BaseDAO(object):
         return document
 
     def delete(self, document_id):
-        return self.collection.find_one_and_delete({'_id': ObjectId(document_id)})
+        if ObjectId.is_valid(document_id):
+            return self.collection.find_one_and_delete({'_id': ObjectId(document_id)})
+
+        return self.collection.find_one_and_delete({'_id': document_id})
 
     def save(self, document_id, updated_document):
         return self.collection.find_one_and_replace(
