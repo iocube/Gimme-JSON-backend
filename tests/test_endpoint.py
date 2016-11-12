@@ -42,11 +42,13 @@ class BaseTest(unittest.TestCase):
 
         self.client = EndpointClient()
         self.payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
+            "route": "/people",
+            "storage_id": "people_storage",
+            "get": "",
+            "post": "",
+            "put": "",
+            "patch": "",
+            "delete": ""
         }
         self.client.add_user()
         self.auth_token = self.client.get_token()
@@ -88,68 +90,41 @@ class EndpointPOST(BaseTest):
         response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         self.assertIn('_id', response.json)
 
-    def test_return_error_if_endpoint_missing(self):
+    def test_return_error_if_route_missing(self):
         payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "methods": [
-              "GET"
-            ]
+            "storage_id": "people_storage",
+            "get": "",
+            "post": "",
+            "put": "",
+            "patch": "",
+            "delete": ""
         }
 
         response = self.client.create_endpoint(payload, headers=self.auth_headers)
         self.assertBadRequest(response)
-        self.assertIn('endpoint', response.json)
 
-    def test_return_error_if_response_missing(self):
+    def test_return_error_if_storage_missing(self):
         payload = {
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET"
-            ]
+            "route": "/people",
+            "get": "",
+            "post": "",
+            "put": "",
+            "patch": "",
+            "delete": ""
         }
 
         response = self.client.create_endpoint(payload, headers=self.auth_headers)
         self.assertBadRequest(response)
-        self.assertIn('response', response.json)
 
-    def test_return_error_if_duplicate_endpoints_and_methods(self):
+    def test_return_error_if_duplicate_routes(self):
         """
-        should return error if such endpoint and method is already exist when creating new endpoint
+        should return error if such route is already exist when creating new endpoint
         """
 
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "GET",
-              "POST"
-            ]
-        }
-
-        response = self.client.create_endpoint(payload, headers=self.auth_headers)
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         self.assertOK(response)
 
-        response = self.client.create_endpoint(payload, headers=self.auth_headers)
-        self.assertBadRequest(response)
-        self.assertIn('endpoint', response.json)
-
-    def test_return_error_if_methods_are_missing(self):
-        payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test"
-        }
-
-        response = self.client.create_endpoint(payload, headers=self.auth_headers)
-        self.assertBadRequest(response)
-        self.assertIn('methods', response.json)
-
-    def test_return_error_if_all_fields_missing(self):
-        payload = {}
-
-        response = self.client.create_endpoint(payload, headers=self.auth_headers)
-        self.assertBadRequest(response)
-
-        response = self.client.create_endpoint(None, headers=self.auth_headers)
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         self.assertBadRequest(response)
 
     def test_return_unauthorized(self):
@@ -183,11 +158,13 @@ class EndpointPATCH(BaseTest):
         endpoint_id = response.json['_id']
 
         new_payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Tel-Aviv\"}",
-            "endpoint": "/api/v1/people",
-            "methods": [
-              "POST"
-            ]
+            "route": "/people",
+            "storage_id": "people_storage",
+            "get": "",
+            "post": "",
+            "put": "",
+            "patch": "",
+            "delete": ""
         }
 
         response = self.client.save_changes(endpoint_id, new_payload, headers=self.auth_headers)
@@ -198,31 +175,31 @@ class EndpointPATCH(BaseTest):
         self.assertOK(response)
         self.assertEqual(patched_endpoint, new_payload)
 
-    def test_return_error_if_duplicate_endpoints_and_methods(self):
+    def test_return_error_if_duplicate_routes(self):
         """
-        should return error if such endpoint and methods already exist
+        should return error if such route already exist
         when trying to modify existing endpoint
         """
-        payload_second = {
-            "response": "{\"name\": \"Bob\"}",
-            "endpoint": "/api/v1/people",
-            "methods": [
-              "GET"
-            ]
+        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
+
+        another_payload = {
+            "route": "/api/v1/duplicateme",
+            "storage_id": "people_storage",
+            "get": "",
+            "post": "",
+            "put": "",
+            "patch": "",
+            "delete": ""
+        }
+        self.client.create_endpoint(another_payload, headers=self.auth_headers)
+        endpoint_id = response.json['_id']
+        patch_payload = {
+            "route": "/api/v1/duplicateme"
         }
 
-        self.client.create_endpoint(self.payload, headers=self.auth_headers)
-        response = self.client.create_endpoint(payload_second, headers=self.auth_headers)
-
-        endpoint_to_patch = response.json
-        endpoint_id = endpoint_to_patch['_id']
-
-        endpoint_to_patch['endpoint'] = '/api/v1/test'
-
-        response = self.client.save_changes(endpoint_id, endpoint_to_patch, headers=self.auth_headers)
+        response = self.client.save_changes(endpoint_id, patch_payload, headers=self.auth_headers)
 
         self.assertBadRequest(response)
-        self.assertIn('endpoint',  response.json)
 
     def test_return_error_if_patching_id(self):
         response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
@@ -242,7 +219,7 @@ class EndpointPATCH(BaseTest):
         endpoint_id = response.json['_id']
 
         patch_payload = {
-            'endpoint': '/api/v1/test'
+            'route': '/api/v1/test'
         }
 
         response = self.client.save_changes(endpoint_id, patch_payload)
@@ -255,37 +232,37 @@ class EndpointPUT(BaseTest):
         response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         new_endpoint_id = response.json['_id']
 
-        self.payload['methods'] = ['POST']
+        self.payload['get'] = 'function add() {}'
         response = self.client.save(new_endpoint_id, self.payload, headers=self.auth_headers)
-        self.assertEqual(response.json['methods'], ['POST'])
+        self.assertEqual(response.json['get'], 'function add() {}')
 
     def test_ignore_id_on_put(self):
         response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
-        self.payload['methods'] = ['POST']
+        self.payload['get'] = 'function add() {}'
         self.payload['_id'] = response.json['_id']
 
         response = self.client.save(response.json['_id'], self.payload, headers=self.auth_headers)
 
         self.assertOK(response)
 
-    def test_return_error_if_duplicate_endpoint_and_methods(self):
+    def test_return_error_if_duplicate_routes(self):
         another_payload = {
-            "response": "{\"name\": \"Alice\", \"city\": \"Berlin\"}",
-            "endpoint": "/api/v1/test",
-            "methods": [
-              "POST"
-            ]
+            "route": "/api/v1/duplicateme",
+            "storage_id": "people_storage",
+            "get": "",
+            "post": "",
+            "put": "",
+            "patch": "",
+            "delete": ""
         }
 
+        self.client.create_endpoint(another_payload, headers=self.auth_headers)
         response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
-        self.assertOK(response)
 
-        response = self.client.create_endpoint(another_payload, headers=self.auth_headers)
-        new_endpoint_id = response.json['_id']
-        self.assertOK(response)
+        self.payload['_id'] = response.json['_id']
+        self.payload['route'] = another_payload['route']
+        response = self.client.save(self.payload['_id'], self.payload, headers=self.auth_headers)
 
-        another_payload['methods'] = ['GET']
-        response = self.client.save(new_endpoint_id, another_payload, headers=self.auth_headers)
         self.assertBadRequest(response)
 
     def test_return_error_if_all_fields_missing(self):
@@ -295,30 +272,23 @@ class EndpointPUT(BaseTest):
         response = self.client.save(response.json['_id'], empty_payload, headers=self.auth_headers)
         self.assertBadRequest(response)
 
-    def test_return_error_if_response_missing(self):
+    def test_return_error_if_route_missing(self):
         response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
-        del self.payload['response']
+        del self.payload['route']
 
         response = self.client.save(response.json['_id'], self.payload, headers=self.auth_headers)
         self.assertBadRequest(response)
 
-    def test_return_error_if_methods_missing(self):
+    def test_return_error_if_storage_missing(self):
         response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
-        del self.payload['methods']
-
-        response = self.client.save(response.json['_id'], self.payload, headers=self.auth_headers)
-        self.assertBadRequest(response)
-
-    def test_return_error_if_endpoint_missing(self):
-        response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
-        del self.payload['endpoint']
+        del self.payload['storage_id']
 
         response = self.client.save(response.json['_id'], self.payload, headers=self.auth_headers)
         self.assertBadRequest(response)
 
     def test_return_unauthorized(self):
         response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
-        del self.payload['endpoint']
+        del self.payload['route']
 
         response = self.client.save(response.json['_id'], self.payload)
 

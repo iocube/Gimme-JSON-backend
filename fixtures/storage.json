@@ -1,0 +1,4 @@
+[
+  {"_id": "people_storage", "value": "[{\"name\": \"Alice\", \"city\": \"Berlin\"}, {\"name\": \"Bob\", \"city\": \"Tel-Aviv\"}, {\"name\": \"Charlie\", \"city\": \"Paris\"}]"},
+  {"_id": "city_storage", "value": "[]"}
+]

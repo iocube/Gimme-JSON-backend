@@ -24,8 +24,8 @@ def get_list():
 @decorators.to_json
 @decorators.jwt_auth_required
 def create():
-    error_missing_fields = {'error': '\'endpoint\', \'methods\' and \'response\' are required fields'}
-    incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_missing_fields)
+    error_bad_json = {'error': 'Bad JSON'}
+    incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_bad_json)
 
     data, error = serializers.Endpoint().load(incoming_json)
     if error:
@@ -34,7 +34,7 @@ def create():
     try:
         new_endpoint = endpoint.create(**data)
     except DuplicateKeyError:
-        error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
+        error_duplicate_values = {'route': 'route should be unique.'}
         raise_invalid_api_usage(error_duplicate_values)
 
     serialized = serializers.Endpoint().dump(new_endpoint)
@@ -76,7 +76,7 @@ def partial_update(endpoint_id):
     try:
         patched_endpoint = endpoint.update(endpoint_id, fields_to_update)
     except DuplicateKeyError:
-        error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
+        error_duplicate_values = {'route': 'route should be unique.'}
         raise_invalid_api_usage(error_duplicate_values)
 
     serialized = serializers.PartialEndpoint().dump(patched_endpoint)
@@ -90,8 +90,8 @@ def save(endpoint_id):
     if not is_object_id_valid(endpoint_id):
         raise_not_found()
 
-    error_missing_fields = {'error': '\'endpoint\', \'methods\' and \'response\' are required fields'}
-    incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_missing_fields)
+    error_bad_json = {'error': 'Bad JSON'}
+    incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_bad_json)
 
     updated_endpoint, error = serializers.Endpoint(exclude=('_id',)).load(incoming_json)
 
@@ -104,7 +104,7 @@ def save(endpoint_id):
     try:
         updated_endpoint = endpoint.save(endpoint_id, updated_endpoint)
     except DuplicateKeyError:
-        error_duplicate_values = {'endpoint': 'Each endpoint should have unique methods.'}
+        error_duplicate_values = {'route': 'route should be unique.'}
         raise_invalid_api_usage(error_duplicate_values)
 
     serialized = serializers.Endpoint().dump(updated_endpoint)

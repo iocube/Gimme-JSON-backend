@@ -10,6 +10,6 @@ class EndpointDAO(BaseDAO):
 
     def _index(self):
         self.collection.create_index(
-            [('endpoint', pymongo.ASCENDING), ('methods', pymongo.ASCENDING)],
+            [('route', pymongo.ASCENDING)],
             unique=True
         )

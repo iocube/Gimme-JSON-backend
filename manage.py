@@ -1,7 +1,7 @@
 import json
 import subprocess
 
-from settings import Testing
+import settings
 from gimmejson import application
 from flask.ext.script import Manager, Server
 from app.database import database, connection
@@ -25,11 +25,16 @@ def index():
 
 @database_manager.command
 def drop():
-    connection.drop_database(Testing.MONGODB_NAME)
+    connection.drop_database(settings.settings.MONGODB_NAME)
 
 
 @database_manager.command
 def populate():
+    f = open('fixtures/storage.json', 'r')
+    storage = json.loads(f.read())
+    f.close()
+    database.storage.insert_many(storage)
+
     f = open('fixtures/endpoints.json', 'r')
     endpoints = json.loads(f.read())
     f.close()
