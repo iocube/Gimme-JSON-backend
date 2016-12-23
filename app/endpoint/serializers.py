@@ -1,11 +1,12 @@
 from marshmallow import Schema
 from app.fields import *
+from app.validators import Unique
 
-    
+
 class Endpoint(Schema):
     _id = ObjectIdField()
     route = EndpointField(required=True)
-    storage_id = fields.String(required=True)
+    storage = fields.List(fields.String(), required=True, validate=[Unique()])
     get = fields.String(required=True)
     post = fields.String(required=True)
     put = fields.String(required=True)
@@ -16,7 +17,7 @@ class Endpoint(Schema):
 class PartialEndpoint(Schema):
     _id = ObjectIdField()
     route = EndpointField()
-    storage_id = fields.String()
+    storage = fields.List(fields.String(), required=True, validate=[Unique()])
     get = fields.String()
     post = fields.String()
     put = fields.String()

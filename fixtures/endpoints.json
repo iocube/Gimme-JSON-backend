@@ -1,4 +1,5 @@
 [
-  {"route": "/people", "storage_id": "people_storage" ,"get": "", "post": "", "put": "", "patch": "", "delete": ""},
-  {"route": "/people/<string:pid>", "storage_id": "people_storage", "get": "", "post": "", "put": "", "patch": "", "delete": ""}
+  {"route": "/people", "storage": ["people"], "get": "", "post": "", "put": "", "patch": "", "delete": ""},
+  {"route": "/people/<string:pid>", "storage": ["people", "friends"], "get": "", "post": "", "put": "", "patch": "", "delete": ""},
+  {"route": "/friend", "storage": ["friends"], "get": "", "post": "", "put": "", "patch": "", "delete": ""}
 ]
