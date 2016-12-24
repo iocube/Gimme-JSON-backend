@@ -7,7 +7,12 @@ class BaseDAO(object):
         self.collection = None
 
     def get_by_id(self, document_id):
-        return self.collection.find_one({'_id': document_id})
+        id_to_find = document_id
+
+        if ObjectId.is_valid(document_id):
+            id_to_find = ObjectId(id_to_find)
+
+        return self.collection.find_one({'_id': id_to_find})
 
     def get_all(self):
         return self.collection.find()

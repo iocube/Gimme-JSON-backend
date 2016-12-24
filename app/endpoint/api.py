@@ -14,6 +14,18 @@ endpoint = EndpointDAO()
 @decorators.crossdomain()
 @decorators.to_json
 @decorators.jwt_auth_required
+def get(endpoint_id):
+    single_endpoint = endpoint.get_by_id(endpoint_id)
+    if single_endpoint:
+        serialized = serializers.Endpoint().dump(single_endpoint)
+        return serialized.data
+
+    return raise_not_found()
+
+
+@decorators.crossdomain()
+@decorators.to_json
+@decorators.jwt_auth_required
 def get_list():
     endpoint_list = endpoint.get_all()
     serialized = serializers.Endpoint(many=True).dump(endpoint_list)
