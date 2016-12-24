@@ -70,7 +70,7 @@ def partial_update(endpoint_id):
         non_field_errors=[ERR_EMPTY_PAYLOAD]
     )
 
-    fields_to_update, error = serializers.PartialEndpoint(exclude=('_id',)).load(incoming_json)
+    fields_to_update, error = serializers.Endpoint(exclude=('_id',), partial=True).load(incoming_json)
     if error:
         raise_validation_error(error)
     elif not fields_to_update:
@@ -82,7 +82,7 @@ def partial_update(endpoint_id):
         field = 'route'
         raise_validation_error(field_errors={field: ERR_DUPLICATE_VALUE.format(field=field)})
 
-    serialized = serializers.PartialEndpoint().dump(patched_endpoint)
+    serialized = serializers.Endpoint().dump(patched_endpoint)
     return serialized.data
 
 

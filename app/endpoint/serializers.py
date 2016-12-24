@@ -12,14 +12,3 @@ class Endpoint(Schema):
     put = fields.String(required=True)
     patch = fields.String(required=True)
     delete = fields.String(required=True)
-
-
-class PartialEndpoint(Schema):
-    _id = ObjectIdField()
-    route = EndpointField()
-    storage = fields.List(fields.String(), required=True, validate=[Unique()])
-    get = fields.String()
-    post = fields.String()
-    put = fields.String()
-    patch = fields.String()
-    delete = fields.String()
