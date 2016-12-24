@@ -4,7 +4,7 @@ from app import blueprints
 from settings import settings
 from app import decorators
 from app.http_status_codes import *
-from app.exceptions import InvalidAPIUsage
+from app.exceptions import ValidationError
 
 
 def register_many_blueprints(app, blueprint_list):
@@ -16,6 +16,7 @@ application = flask.Flask(__name__)
 application.config.from_object(settings)
 
 register_many_blueprints(application, blueprints)
+
 
 @application.errorhandler(HTTP_NOT_FOUND)
 @decorators.crossdomain(methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
@@ -34,11 +35,11 @@ def handle_method_not_allowed(error):
     return response, status, headers
 
 
-@application.errorhandler(InvalidAPIUsage)
+@application.errorhandler(ValidationError)
 @decorators.crossdomain()
 @decorators.to_json
-def handle_invalid_api_usage(error):
-    return error.message, error.code
+def handle_validation_error(error):
+    return error.response, error.code
 
 
 @application.errorhandler(HTTP_BAD_REQUEST)

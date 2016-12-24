@@ -3,10 +3,10 @@ from pymongo.errors import DuplicateKeyError
 
 from app import decorators
 from app.endpoint import serializers
-from app.exceptions import raise_invalid_api_usage, raise_not_found
+from app.exceptions import raise_validation_error, raise_not_found
 from app.endpoint.dao import EndpointDAO
 from app.util import is_object_id_valid
-
+from app.error_messages import ERR_EMPTY_PAYLOAD, ERR_NOTHING_TO_UPDATE, ERR_DUPLICATE_VALUE
 
 endpoint = EndpointDAO()
 
@@ -24,18 +24,21 @@ def get_list():
 @decorators.to_json
 @decorators.jwt_auth_required
 def create():
-    error_bad_json = {'error': 'Bad JSON'}
-    incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_bad_json)
+    incoming_json = request.get_json(silent=True) or raise_validation_error(
+        non_field_errors=[ERR_EMPTY_PAYLOAD]
+    )
 
     data, error = serializers.Endpoint().load(incoming_json)
     if error:
-        raise_invalid_api_usage(error)
+        raise_validation_error(field_errors=error)
 
     try:
         new_endpoint = endpoint.create(**data)
     except DuplicateKeyError:
-        error_duplicate_values = {'route': 'route should be unique.'}
-        raise_invalid_api_usage(error_duplicate_values)
+        field = 'route'
+        raise_validation_error(field_errors={
+            field: ERR_DUPLICATE_VALUE.format(field=field)
+        })
 
     serialized = serializers.Endpoint().dump(new_endpoint)
     return serialized.data
@@ -63,21 +66,21 @@ def partial_update(endpoint_id):
     if not is_object_id_valid(endpoint_id):
         raise_not_found()
 
-    error_missing_fields = {'error': 'expecting at least one field.'}
-    incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_missing_fields)
+    incoming_json = request.get_json(silent=True) or raise_validation_error(
+        non_field_errors=[ERR_EMPTY_PAYLOAD]
+    )
 
     fields_to_update, error = serializers.PartialEndpoint(exclude=('_id',)).load(incoming_json)
     if error:
-        raise_invalid_api_usage(error)
+        raise_validation_error(error)
     elif not fields_to_update:
-        error_nothing_to_update = {'error': 'Nothing to update.'}
-        raise_invalid_api_usage(error_nothing_to_update)
+        raise_validation_error(non_field_errors=[ERR_NOTHING_TO_UPDATE])
 
     try:
         patched_endpoint = endpoint.update(endpoint_id, fields_to_update)
     except DuplicateKeyError:
-        error_duplicate_values = {'route': 'route should be unique.'}
-        raise_invalid_api_usage(error_duplicate_values)
+        field = 'route'
+        raise_validation_error(field_errors={field: ERR_DUPLICATE_VALUE.format(field=field)})
 
     serialized = serializers.PartialEndpoint().dump(patched_endpoint)
     return serialized.data
@@ -90,22 +93,24 @@ def save(endpoint_id):
     if not is_object_id_valid(endpoint_id):
         raise_not_found()
 
-    error_bad_json = {'error': 'Bad JSON'}
-    incoming_json = request.get_json(silent=True) or raise_invalid_api_usage(error_bad_json)
+    incoming_json = request.get_json(silent=True) or raise_validation_error(
+        non_field_errors=[ERR_EMPTY_PAYLOAD]
+    )
 
     updated_endpoint, error = serializers.Endpoint(exclude=('_id',)).load(incoming_json)
 
     if error:
-        raise_invalid_api_usage(error)
+        raise_validation_error(field_errors=error)
     elif not updated_endpoint:
-        error_nothing_to_update = {'error': 'Nothing to update.'}
-        raise_invalid_api_usage(error_nothing_to_update)
+        raise_validation_error(non_field_errors=[ERR_NOTHING_TO_UPDATE])
 
     try:
         updated_endpoint = endpoint.save(endpoint_id, updated_endpoint)
     except DuplicateKeyError:
-        error_duplicate_values = {'route': 'route should be unique.'}
-        raise_invalid_api_usage(error_duplicate_values)
+        field = 'route'
+        raise_validation_error(field_errors={
+            field: ERR_DUPLICATE_VALUE.format(field=field)
+        })
 
     serialized = serializers.Endpoint().dump(updated_endpoint)
     return serialized.data
