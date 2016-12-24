@@ -28,7 +28,7 @@ def create():
         non_field_errors=[ERR_EMPTY_PAYLOAD]
     )
 
-    data, error = serializers.Endpoint().load(incoming_json)
+    data, error = serializers.Endpoint(exclude=('_id',)).load(incoming_json)
     if error:
         raise_validation_error(field_errors=error)
 
