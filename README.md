@@ -123,3 +123,13 @@ Restart         DELETE,OPTIONS       http://localhost/server/
 New Token       POST,OPTIONS         http://localhost/token/
 New User        POST,OPTIONS         http://localhost/user/
 ```
+
+## Development
+### Download MongoDB container
+$ sudo docker run --name gimmejson-mongo -d mongo
+
+### Access MongoDB shell
+$ sudo docker run -it --link gimmejson-mongo:mongo --rm mongo sh -c 'exec mongo "172.17.0.2:27017/test"'
+
+### Restart container
+$ sudo docker restart gimmejson-mongo
