@@ -1,4 +1,4 @@
 [
-  {"_id": "people", "value": "[{\"name\": \"Alice\", \"city\": \"Berlin\"}, {\"name\": \"Bob\", \"city\": \"Tel-Aviv\"}, {\"name\": \"Charlie\", \"city\": \"Paris\"}]"},
+  {"_id": "people", "value": "[{\"id\": 1, \"name\": \"Alice\", \"city\": \"Berlin\"}, {\"id\": 2, \"name\": \"Bob\", \"city\": \"Tel-Aviv\"}, {\"id\": 3, \"name\": \"Charlie\", \"city\": \"Paris\"}]"},
   {"_id": "friends", "value": "[]"}
 ]
