@@ -1,5 +1,5 @@
 [
-  {"route": "/people", "storage": ["people"], "get": "", "post": "", "put": "", "patch": "", "delete": ""},
+  {"route": "/people", "storage": ["people"], "get": "(function() { return response(200, gimme.storage.people); })();", "post": "(function() { gimme.storage.people.push(gimme.payload); response(200, gimme.payload); })();", "put": "", "patch": "", "delete": ""},
   {"route": "/people/<string:pid>", "storage": ["people", "friends"], "get": "", "post": "", "put": "", "patch": "", "delete": ""},
   {"route": "/friend", "storage": ["friends"], "get": "", "post": "", "put": "", "patch": "", "delete": ""}
 ]
