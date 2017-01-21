@@ -1,5 +1,5 @@
 [
-  {"route": "/people", "storage": ["people"], "get": "(function() { return response(200, gimme.storage.people); })();", "post": "(function() { gimme.storage.people.push(gimme.payload); response(200, gimme.payload); })();", "put": "", "patch": "", "delete": ""},
-  {"route": "/people/<string:pid>", "storage": ["people", "friends"], "get": "", "post": "", "put": "", "patch": "", "delete": "(function() { var pid = gimme.request.params.pid; gimme.storage.people = gimme.storage.people.filter(function(person) { return parseInt(pid) !== person.id; }); response(200, {}); })();"},
+  {"route": "/people", "storage": ["people"], "get": "$g.set_response(200, $g.storage.people);", "post": "$g.storage.people.push($g.payload); $g.set_response(200, $g.payload);", "put": "", "patch": "", "delete": ""},
+  {"route": "/people/<string:pid>", "storage": ["people", "friends"], "get": "", "post": "", "put": "", "patch": "", "delete": "var pid = $g.params.pid; $g.storage.people = $g.storage.people.filter(function(person) { return parseInt(pid) !== person.id; }); $g.set_response(200, {});"},
   {"route": "/friend", "storage": ["friends"], "get": "", "post": "", "put": "", "patch": "", "delete": ""}
 ]
