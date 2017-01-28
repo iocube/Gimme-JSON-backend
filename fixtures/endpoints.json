@@ -1,5 +1,5 @@
 [
-  {"route": "/people", "storage": ["people"], "get": "$g.set_response(200, $g.storage.people);", "post": "$g.storage.people.push($g.payload); $g.set_response(200, $g.payload);", "put": "", "patch": "", "delete": ""},
-  {"route": "/people/<string:pid>", "storage": ["people", "friends"], "get": "", "post": "", "put": "", "patch": "", "delete": "var pid = $g.params.pid; $g.storage.people = $g.storage.people.filter(function(person) { return parseInt(pid) !== person.id; }); $g.set_response(200, {});"},
+  {"route": "/people", "storage": ["people"], "get": "$g.setResponse(200, $g.storage.people);", "post": "$g.storage.people.push($g.payload); $g.setResponse(200, $g.payload);", "put": "", "patch": "", "delete": ""},
+  {"route": "/people/<int:pid>", "storage": ["people", "friends"], "get": "var personId = $g.params.pid; var found = $g.storage.people.filter(function(person) { return person.id === personId; }); if (found.length > 0) { $g.setResponse(200, found[0]); } else { $g.setResponse(404, {}) }", "post": "", "put": "", "patch": "", "delete": "var pid = $g.params.pid; $g.storage.people = $g.storage.people.filter(function(person) { return parseInt(pid) !== person.id; }); $g.setResponse(200, {});"},
   {"route": "/friend", "storage": ["friends"], "get": "", "post": "", "put": "", "patch": "", "delete": ""}
 ]
