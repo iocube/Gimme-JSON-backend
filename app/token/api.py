@@ -1,5 +1,7 @@
 from flask import request
-from app import decorators
+from flask.views import MethodView
+
+from app.decorators import to_json, crossdomain
 from app.exceptions import raise_validation_error
 from app.token import serializers
 from app.token.dao import TokenDAO
@@ -10,18 +12,22 @@ token = TokenDAO()
 user = UserDAO()
 
 
-@decorators.crossdomain()
-@decorators.to_json
-def create():
-    incoming_json = request.get_json(silent=True) or raise_validation_error(
-        non_field_errors=[ERR_EMPTY_PAYLOAD]
-    )
+class TokenCollection(MethodView):
+    decorators = [
+        to_json,
+        crossdomain()
+    ]
 
-    credentials, error = serializers.Token().load(incoming_json)
-    if error:
-        raise_validation_error(field_errors=error)
+    def post(self):
+        incoming_json = request.get_json(silent=True) or raise_validation_error(
+            non_field_errors=[ERR_EMPTY_PAYLOAD]
+        )
 
-    if user.is_valid_credentials(credentials['username'], credentials['password']):
-        return {'token': token.generate_jwt_token().decode('utf-8')}
+        credentials, error = serializers.Token().load(incoming_json)
+        if error:
+            raise_validation_error(field_errors=error)
 
-    raise_validation_error(non_field_errors=['Invalid username or password'])
+        if user.is_valid_credentials(credentials['username'], credentials['password']):
+            return {'token': token.generate_jwt_token().decode('utf-8')}
+
+        raise_validation_error(non_field_errors=['Invalid username or password'])
