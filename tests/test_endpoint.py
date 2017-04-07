@@ -44,11 +44,11 @@ class BaseTest(unittest.TestCase):
         self.payload = {
             "route": "/people",
             "storage_id": "people_storage",
-            "get": "",
-            "post": "",
-            "put": "",
-            "patch": "",
-            "delete": ""
+            "on_get": "",
+            "on_post": "",
+            "on_put": "",
+            "on_patch": "",
+            "on_delete": ""
         }
         self.client.add_user()
         self.auth_token = self.client.get_token()
@@ -93,11 +93,11 @@ class EndpointPOST(BaseTest):
     def test_return_error_if_route_missing(self):
         payload = {
             "storage_id": "people_storage",
-            "get": "",
-            "post": "",
-            "put": "",
-            "patch": "",
-            "delete": ""
+            "on_get": "",
+            "on_post": "",
+            "on_put": "",
+            "on_patch": "",
+            "on_delete": ""
         }
 
         response = self.client.create_endpoint(payload, headers=self.auth_headers)
@@ -106,11 +106,11 @@ class EndpointPOST(BaseTest):
     def test_return_error_if_storage_missing(self):
         payload = {
             "route": "/people",
-            "get": "",
-            "post": "",
-            "put": "",
-            "patch": "",
-            "delete": ""
+            "on_get": "",
+            "on_post": "",
+            "on_put": "",
+            "on_patch": "",
+            "on_delete": ""
         }
 
         response = self.client.create_endpoint(payload, headers=self.auth_headers)
@@ -160,11 +160,11 @@ class EndpointPATCH(BaseTest):
         new_payload = {
             "route": "/people",
             "storage_id": "people_storage",
-            "get": "",
-            "post": "",
-            "put": "",
-            "patch": "",
-            "delete": ""
+            "on_get": "",
+            "on_post": "",
+            "on_put": "",
+            "on_patch": "",
+            "on_delete": ""
         }
 
         response = self.client.save_changes(endpoint_id, new_payload, headers=self.auth_headers)
@@ -185,11 +185,11 @@ class EndpointPATCH(BaseTest):
         another_payload = {
             "route": "/api/v1/duplicateme",
             "storage_id": "people_storage",
-            "get": "",
-            "post": "",
-            "put": "",
-            "patch": "",
-            "delete": ""
+            "on_get": "",
+            "on_post": "",
+            "on_put": "",
+            "on_patch": "",
+            "on_delete": ""
         }
         self.client.create_endpoint(another_payload, headers=self.auth_headers)
         endpoint_id = response.json['_id']
@@ -232,13 +232,13 @@ class EndpointPUT(BaseTest):
         response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
         new_endpoint_id = response.json['_id']
 
-        self.payload['get'] = 'function add() {}'
+        self.payload['on_get'] = 'function add() {}'
         response = self.client.save(new_endpoint_id, self.payload, headers=self.auth_headers)
         self.assertEqual(response.json['get'], 'function add() {}')
 
     def test_ignore_id_on_put(self):
         response = self.client.create_endpoint(self.payload, headers=self.auth_headers)
-        self.payload['get'] = 'function add() {}'
+        self.payload['on_get'] = 'function add() {}'
         self.payload['_id'] = response.json['_id']
 
         response = self.client.save(response.json['_id'], self.payload, headers=self.auth_headers)
@@ -249,11 +249,11 @@ class EndpointPUT(BaseTest):
         another_payload = {
             "route": "/api/v1/duplicateme",
             "storage_id": "people_storage",
-            "get": "",
-            "post": "",
-            "put": "",
-            "patch": "",
-            "delete": ""
+            "on_get": "",
+            "on_post": "",
+            "on_put": "",
+            "on_patch": "",
+            "on_delete": ""
         }
 
         self.client.create_endpoint(another_payload, headers=self.auth_headers)
