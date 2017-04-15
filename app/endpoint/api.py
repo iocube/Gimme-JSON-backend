@@ -24,7 +24,7 @@ class EndpointCollection(MethodView):
         serialized = serializers.Endpoint(many=True).dump(endpoint_list)
         return serialized.data
 
-    def create(self):
+    def post(self):
         incoming_json = request.get_json(silent=True) or raise_validation_error(
             non_field_errors=[ERR_EMPTY_PAYLOAD]
         )
